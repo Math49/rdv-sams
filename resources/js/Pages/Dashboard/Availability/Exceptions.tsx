@@ -152,7 +152,7 @@ const Exceptions = ({ calendarId }: ExceptionsProps) => {
 
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} backdrop="blur">
                 <ModalContent>
-                    <ModalHeader>{editing ? 'Modifier l'exception' : 'Nouvelle exception'}</ModalHeader>
+                    <ModalHeader>{editing ? `Modifier l'exception` : 'Nouvelle exception'}</ModalHeader>
                     <ModalBody className="space-y-3">
                         <Input
                             label="Date"

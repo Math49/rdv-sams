@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace Database\Seeders;
 
@@ -41,7 +41,7 @@ class DatabaseSeeder extends Seeder
         if (! $admin) {
             $admin = User::query()->create([
                 'identifier' => $adminIdentifier,
-                'password' => 'ChangeMe123!',
+                'password' => 'root1234!',
                 'name' => 'Math Daniel',
                 'roles' => ['admin'],
                 'specialtyIds' => [],
@@ -65,7 +65,7 @@ class DatabaseSeeder extends Seeder
         if (! $doctor) {
             User::query()->create([
                 'identifier' => $doctorIdentifier,
-                'password' => 'ChangeMe123!',
+                'password' => 'root1234!',
                 'name' => 'Math Daniel',
                 'roles' => ['doctor'],
                 'specialtyIds' => $doctorSpecialties,
