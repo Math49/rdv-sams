@@ -4,6 +4,8 @@ import createServer from '@inertiajs/react/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
 
+import { ToastProvider } from './Components/ui/ToastProvider';
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createServer((page) =>
@@ -13,12 +15,13 @@ createServer((page) =>
         title: (title) => (title ? `${title} - ${appName}` : appName),
         resolve: (name) =>
             resolvePageComponent(
-                `./pages/${name}.tsx`,
-                import.meta.glob('./pages/**/*.tsx'),
+                `./Pages/${name}.tsx`,
+                import.meta.glob('./Pages/**/*.tsx'),
             ),
         setup: ({ App, props }) => {
             return (
                 <HeroUIProvider>
+                    <ToastProvider />
                     <App {...props} />
                 </HeroUIProvider>
             );

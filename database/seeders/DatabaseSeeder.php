@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         $specialties = [
             'Gynécologie',
-            'Médecin légale',
+            'Médecin légale (légiste)',
             'Psychologue',
             'Kiné',
         ];
@@ -43,14 +43,14 @@ class DatabaseSeeder extends Seeder
                 'identifier' => $adminIdentifier,
                 'password' => 'ChangeMe123!',
                 'name' => 'Math Daniel',
-                'roles' => 'admin',
+                'roles' => ['admin'],
                 'specialtyIds' => [],
                 'isActive' => true,
             ]);
         } else {
             $admin->fill([
                 'name' => 'Math Daniel',
-                'roles' => 'admin',
+                'roles' => ['admin'],
                 'isActive' => true,
             ])->save();
         }
@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
         $doctor = User::query()->where('identifier', $doctorIdentifier)->first();
         $doctorSpecialties = array_values(array_filter([
             $specialtyIds[Str::slug('Gynécologie')] ?? null,
-            $specialtyIds[Str::slug('Médecin légale')] ?? null,
+            $specialtyIds[Str::slug('Médecin légale (légiste)')] ?? null,
         ]));
 
         if (! $doctor) {
@@ -67,14 +67,14 @@ class DatabaseSeeder extends Seeder
                 'identifier' => $doctorIdentifier,
                 'password' => 'ChangeMe123!',
                 'name' => 'Math Daniel',
-                'roles' => 'doctor',
+                'roles' => ['doctor'],
                 'specialtyIds' => $doctorSpecialties,
                 'isActive' => true,
             ]);
         } else {
             $doctor->fill([
                 'name' => 'Math Daniel',
-                'roles' => 'doctor',
+                'roles' => ['doctor'],
                 'specialtyIds' => $doctorSpecialties,
                 'isActive' => true,
             ])->save();

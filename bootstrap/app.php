@@ -26,6 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureRole::class,
             'patient.token' => \App\Http\Middleware\EnsureValidPatientToken::class,
+            'patient.web' => \App\Http\Middleware\EnsurePatientTokenWeb::class,
+            'dashboard.auth' => \App\Http\Middleware\EnsureDashboardAuthWeb::class,
+            'admin.web' => \App\Http\Middleware\EnsureAdminWeb::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

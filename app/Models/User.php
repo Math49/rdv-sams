@@ -46,7 +46,6 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
-            'roles' => 'array',
             'specialtyIds' => 'array',
             'isActive' => 'boolean',
             'two_factor_confirmed_at' => 'datetime',
@@ -71,6 +70,36 @@ class User extends Authenticatable
     public function availabilityExceptions()
     {
         return $this->hasMany(AvailabilityException::class, 'doctorId');
+    }
+public function setRolesAttribute(?array $value): void
+    {
+        if ($value === null) {
+            $this->attributes['roles'] = [];
+            return;
+        }
+
+        $this->attributes['roles'] = array_values(array_filter(
+            $value,
+            fn ($role) => is_string($role) && $role !== ''
+        ));
+    }
+
+    public function getRolesAttribute($value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+
+            return $value !== '' ? [$value] : [];
+        }
+
+        return [];
     }
 
     public function setSpecialtyIdsAttribute(?array $value): void
