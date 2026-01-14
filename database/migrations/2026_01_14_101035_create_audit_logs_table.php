@@ -1,27 +1,30 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('audit_logs', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        $collection = DB::connection('mongodb')->getMongoDB()->selectCollection('audit_logs');
+
+        $collection->createIndex(
+            ['entityType' => 1, 'entityId' => 1],
+            ['name' => 'audit_logs_entity']
+        );
+
+        $collection->createIndex(
+            ['actorUserId' => 1, 'createdAt' => 1],
+            ['name' => 'audit_logs_actor_createdAt']
+        );
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('audit_logs');
+        $collection = DB::connection('mongodb')->getMongoDB()->selectCollection('audit_logs');
+
+        $collection->dropIndex('audit_logs_entity');
+        $collection->dropIndex('audit_logs_actor_createdAt');
     }
 };

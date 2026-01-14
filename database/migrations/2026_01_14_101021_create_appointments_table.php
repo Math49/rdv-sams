@@ -1,27 +1,42 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('appointments', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        $collection = DB::connection('mongodb')->getMongoDB()->selectCollection('appointments');
+
+        $collection->createIndex(
+            ['doctorId' => 1, 'startAt' => 1],
+            ['name' => 'appointments_doctor_startAt']
+        );
+
+        $collection->createIndex(
+            ['calendarId' => 1, 'startAt' => 1],
+            ['name' => 'appointments_calendar_startAt']
+        );
+
+        $collection->createIndex(
+            ['status' => 1, 'startAt' => 1],
+            ['name' => 'appointments_status_startAt']
+        );
+
+        $collection->createIndex(
+            ['patient.phone' => 1],
+            ['name' => 'appointments_patient_phone']
+        );
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('appointments');
+        $collection = DB::connection('mongodb')->getMongoDB()->selectCollection('appointments');
+
+        $collection->dropIndex('appointments_doctor_startAt');
+        $collection->dropIndex('appointments_calendar_startAt');
+        $collection->dropIndex('appointments_status_startAt');
+        $collection->dropIndex('appointments_patient_phone');
     }
 };

@@ -1,27 +1,36 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('booking_tokens', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        $collection = DB::connection('mongodb')->getMongoDB()->selectCollection('booking_tokens');
+
+        $collection->createIndex(
+            ['tokenHash' => 1],
+            ['unique' => true, 'name' => 'booking_tokens_tokenHash_unique']
+        );
+
+        $collection->createIndex(
+            ['expiresAt' => 1],
+            ['expireAfterSeconds' => 0, 'name' => 'booking_tokens_expiresAt_ttl']
+        );
+
+        $collection->createIndex(
+            ['doctorId' => 1, 'expiresAt' => 1],
+            ['name' => 'booking_tokens_doctor_expiresAt']
+        );
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('booking_tokens');
+        $collection = DB::connection('mongodb')->getMongoDB()->selectCollection('booking_tokens');
+
+        $collection->dropIndex('booking_tokens_tokenHash_unique');
+        $collection->dropIndex('booking_tokens_expiresAt_ttl');
+        $collection->dropIndex('booking_tokens_doctor_expiresAt');
     }
 };

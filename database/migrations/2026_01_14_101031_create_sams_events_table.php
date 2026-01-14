@@ -1,27 +1,30 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('sams_events', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        $collection = DB::connection('mongodb')->getMongoDB()->selectCollection('sams_events');
+
+        $collection->createIndex(
+            ['startAt' => 1],
+            ['name' => 'sams_events_startAt']
+        );
+
+        $collection->createIndex(
+            ['source' => 1, 'startAt' => 1],
+            ['name' => 'sams_events_source_startAt']
+        );
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('sams_events');
+        $collection = DB::connection('mongodb')->getMongoDB()->selectCollection('sams_events');
+
+        $collection->dropIndex('sams_events_startAt');
+        $collection->dropIndex('sams_events_source_startAt');
     }
 };
