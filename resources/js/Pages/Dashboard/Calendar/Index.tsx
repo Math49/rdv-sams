@@ -19,9 +19,9 @@ import { ConfirmDialog } from '@/Components/ui/ConfirmDialog';
 import { PageHeader } from '@/Components/ui/PageHeader';
 import { DashboardLayout } from '@/Layouts/DashboardLayout';
 import { useIsAdmin } from '@/hooks/useAuth';
-import { api } from '@/lib/api';
+import { api, getAvailabilityFeed } from '@/lib/api';
 import { formatDateTimeFR, toIsoUtc } from '@/lib/date';
-import type { ApiResponse, Appointment, Calendar, Doctor, SamsEvent } from '@/lib/types';
+import type { ApiResponse, Appointment, AvailabilitySlot, Calendar, Doctor, SamsEvent } from '@/lib/types';
 
 const viewOptions = [
     { key: 'dayGridMonth', label: 'Mois' },
@@ -66,6 +66,7 @@ const CalendarIndex = () => {
     const calendarRef = useRef<FullCalendar | null>(null);
     const [calendars, setCalendars] = useState<Calendar[]>([]);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlot[]>([]);
     const [samsEvents, setSamsEvents] = useState<SamsEvent[]>([]);
     const [doctors, setDoctors] = useState<Doctor[]>([]);
     const [calendarIds, setCalendarIds] = useState<string[]>([]);
@@ -113,6 +114,22 @@ const CalendarIndex = () => {
         [calendarIds, isAdmin],
     );
 
+    const loadAvailability = useCallback(
+        async (range: ViewRange) => {
+            if (calendarIds.length === 0) {
+                setAvailabilitySlots([]);
+                return;
+            }
+            const response = await getAvailabilityFeed({
+                from: toIsoUtc(range.start),
+                to: toIsoUtc(range.end),
+                calendarIds,
+            });
+            setAvailabilitySlots((response.data as ApiResponse<AvailabilitySlot[]>).data);
+        },
+        [calendarIds],
+    );
+
     const loadDoctors = useCallback(async () => {
         const response = await api.get<ApiResponse<Doctor[]>>('/api/doctors');
         setDoctors(response.data.data);
@@ -158,6 +175,12 @@ const CalendarIndex = () => {
         if (!range) return;
         loadAppointments(range);
     }, [loadAppointments]);
+
+    useEffect(() => {
+        const range = viewRangeRef.current;
+        if (!range) return;
+        loadAvailability(range);
+    }, [loadAvailability]);
 
     useEffect(() => {
         if (!includeSams) {
@@ -230,6 +253,18 @@ const CalendarIndex = () => {
         });
     }, [filteredAppointments, calendarMap]);
 
+    const availabilityEvents = useMemo<EventInput[]>(() => {
+        return availabilitySlots.map((slot) => ({
+            id: `availability-${slot.startAt}-${slot.endAt}-${slot.calendarId || ''}`,
+            start: slot.startAt,
+            end: slot.endAt,
+            display: 'background',
+            backgroundColor: 'rgba(56, 189, 248, 0.14)',
+            classNames: ['fc-availability-bg'],
+            extendedProps: { kind: 'availability' },
+        }));
+    }, [availabilitySlots]);
+
     const samsEventItems = useMemo<EventInput[]>(() => {
         if (!includeSams) return [];
         return samsEvents.map((event) => {
@@ -254,8 +289,8 @@ const CalendarIndex = () => {
     }, [samsEvents, includeSams]);
 
     const events = useMemo<EventInput[]>(() => {
-        return [...appointmentEvents, ...samsEventItems];
-    }, [appointmentEvents, samsEventItems]);
+        return [...availabilityEvents, ...appointmentEvents, ...samsEventItems];
+    }, [availabilityEvents, appointmentEvents, samsEventItems]);
 
     const handleDatesSet = (info: DatesSetArg) => {
         setViewTitle(info.view.title);
@@ -264,12 +299,16 @@ const CalendarIndex = () => {
         viewRangeRef.current = range;
         setViewRange(range);
         loadAppointments(range);
+        loadAvailability(range);
         if (includeSams) {
             loadSamsEvents(range);
         }
     };
 
     const handleEventClick = (info: EventClickArg) => {
+        if (info.event.extendedProps?.kind === 'availability') {
+            return;
+        }
         if (info.event.extendedProps?.kind === 'sams') {
             const target = samsEventById.get(info.event.id);
             if (!target) return;
@@ -284,6 +323,14 @@ const CalendarIndex = () => {
     };
 
     const handleEventDidMount = (info: EventMountArg) => {
+        if (info.event.extendedProps?.kind === 'availability') {
+            info.el.style.cursor = 'default';
+            const start = info.event.start ? formatDateTimeFR(info.event.start) : '';
+            const end = info.event.end ? formatDateTimeFR(info.event.end) : '';
+            const range = end ? `${start} - ${end}` : start;
+            info.el.title = range ? `Disponibilite (${range})` : 'Disponibilite';
+            return;
+        }
         info.el.style.cursor = 'pointer';
         const start = info.event.start ? formatDateTimeFR(info.event.start) : '';
         const end = info.event.end ? formatDateTimeFR(info.event.end) : '';

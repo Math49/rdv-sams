@@ -142,11 +142,22 @@ export type PatientTokenContext = {
 };
 
 export type AvailabilitySlot = {
+    doctorId?: string;
+    calendarId?: string;
     startAt: string;
     endAt: string;
 };
 
 export type Slot = AvailabilitySlot;
+
+export type AvailabilityEvent = {
+    id: string;
+    start: string;
+    end: string;
+    doctorId?: string;
+    calendarId?: string;
+    title?: string;
+};
 
 export type PageProps = {
     name: string;

@@ -64,6 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('availability-exceptions/{id}', [AvailabilityExceptionController::class, 'destroy']);
 
     Route::get('availability/slots', [AvailabilitySlotController::class, 'index']);
+    Route::get('availability/feed', [AvailabilitySlotController::class, 'feed']);
 
     Route::post('calendars/{calendarId}/booking-token', [BookingTokenController::class, 'store']);
 

@@ -96,6 +96,14 @@ export const appointmentApi = {
         api.post(`/api/appointments/${id}/transfer`, payload),
 };
 
+export const getAvailabilityFeed = (params: {
+    from: string;
+    to: string;
+    doctorId?: string;
+    doctorIds?: string[];
+    calendarIds?: string[];
+}) => api.get('/api/availability/feed', { params });
+
 export const adminApi = {
     listDoctors: () => api.get('/api/admin/doctors'),
     getDoctor: (id: string) => api.get(`/api/admin/doctors/${id}`),

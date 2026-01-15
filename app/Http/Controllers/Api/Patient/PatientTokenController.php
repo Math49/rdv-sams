@@ -21,8 +21,7 @@ class PatientTokenController extends Controller
         if (! $bookingToken) {
             return response()->json([
                 'message' => 'Invalid or expired token',
-                'errors' => ['token' => ['Invalid or expired token']],
-            ], 422);
+            ], 401);
         }
 
         $expiresAt = $bookingToken->expiresAt->copy()->utc();
@@ -30,8 +29,7 @@ class PatientTokenController extends Controller
         if ($seconds <= 0) {
             return response()->json([
                 'message' => 'Invalid or expired token',
-                'errors' => ['token' => ['Invalid or expired token']],
-            ], 422);
+            ], 401);
         }
 
         $minutes = (int) ceil($seconds / 60);

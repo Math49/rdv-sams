@@ -17,9 +17,9 @@ import { ConfirmDialog } from '@/Components/ui/ConfirmDialog';
 import { PageHeader } from '@/Components/ui/PageHeader';
 import { DashboardLayout } from '@/Layouts/DashboardLayout';
 import { useIsAdmin } from '@/hooks/useAuth';
-import { adminApi, api } from '@/lib/api';
+import { adminApi, api, getAvailabilityFeed } from '@/lib/api';
 import { formatDateTimeFR, toIsoUtc } from '@/lib/date';
-import type { ApiResponse, Appointment, Calendar, Doctor, SamsEvent, Specialty } from '@/lib/types';
+import type { ApiResponse, Appointment, AvailabilitySlot, Calendar, Doctor, SamsEvent, Specialty } from '@/lib/types';
 
 const viewOptions = [
     { key: 'dayGridMonth', label: 'Mois' },
@@ -63,6 +63,7 @@ const CalendarsIndex = () => {
     const calendarRef = useRef<FullCalendar | null>(null);
     const [calendars, setCalendars] = useState<Calendar[]>([]);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlot[]>([]);
     const [samsEvents, setSamsEvents] = useState<SamsEvent[]>([]);
     const [doctors, setDoctors] = useState<Doctor[]>([]);
     const [specialties, setSpecialties] = useState<Array<{ id: string; label: string }>>([]);
@@ -110,6 +111,23 @@ const CalendarsIndex = () => {
             }
         },
         [isAdmin, selectedDoctorIds],
+    );
+
+    const loadAvailability = useCallback(
+        async (range: ViewRange, calendarIds: string[]) => {
+            if (selectedDoctorIds.length === 0 || calendarIds.length === 0) {
+                setAvailabilitySlots([]);
+                return;
+            }
+            const response = await getAvailabilityFeed({
+                from: toIsoUtc(range.start),
+                to: toIsoUtc(range.end),
+                doctorIds: selectedDoctorIds,
+                calendarIds,
+            });
+            setAvailabilitySlots((response.data as ApiResponse<AvailabilitySlot[]>).data);
+        },
+        [selectedDoctorIds],
     );
 
     const loadDoctors = useCallback(async () => {
@@ -174,7 +192,6 @@ const CalendarsIndex = () => {
         loadAppointments(range);
     }, [loadAppointments]);
 
-
     const appointmentById = useMemo(() => {
         return new Map<string, Appointment>(
             appointments
@@ -205,6 +222,23 @@ const CalendarsIndex = () => {
                 .map((doctor) => [doctor._id || doctor.id || '', doctor] as const)
                 .filter(([id]) => Boolean(id)),
         );
+    }, [doctors]);
+
+    const availabilityColorMap = useMemo(() => {
+        const palette = [
+            'rgba(56, 189, 248, 0.14)',
+            'rgba(34, 197, 94, 0.14)',
+            'rgba(251, 191, 36, 0.14)',
+            'rgba(244, 114, 182, 0.14)',
+            'rgba(148, 163, 184, 0.14)',
+        ];
+        const map = new Map<string, string>();
+        doctors.forEach((doctor, index) => {
+            const id = doctor._id || doctor.id;
+            if (!id) return;
+            map.set(id, palette[index % palette.length]);
+        });
+        return map;
     }, [doctors]);
 
     const derivedSpecialties = useMemo(() => {
@@ -249,6 +283,30 @@ const CalendarsIndex = () => {
         });
     }, [appointments, selectedDoctorIds, selectedSpecialtyIds, includeDoctorScope, calendarMap]);
 
+    const filteredCalendarIds = useMemo(() => {
+        if (selectedDoctorIds.length === 0) return [];
+        const doctorSelection = new Set(selectedDoctorIds);
+        const specialtySelection = new Set(selectedSpecialtyIds);
+
+        return calendars
+            .filter((calendar) => {
+                if (!calendar.doctorId || !doctorSelection.has(calendar.doctorId)) return false;
+                if (calendar.scope === 'doctor') return includeDoctorScope;
+                if (calendar.scope === 'specialty') {
+                    return calendar.specialtyId ? specialtySelection.has(calendar.specialtyId) : false;
+                }
+                return false;
+            })
+            .map((calendar) => calendar._id || calendar.id || '')
+            .filter((id) => id.length > 0);
+    }, [calendars, selectedDoctorIds, selectedSpecialtyIds, includeDoctorScope]);
+
+    useEffect(() => {
+        const range = viewRangeRef.current;
+        if (!range) return;
+        loadAvailability(range, filteredCalendarIds);
+    }, [loadAvailability, filteredCalendarIds]);
+
     const appointmentEvents = useMemo<EventInput[]>(() => {
         return filteredAppointments.map((appointment) => {
             const id = appointment._id || appointment.id || '';
@@ -275,6 +333,21 @@ const CalendarsIndex = () => {
         });
     }, [filteredAppointments, calendarMap, doctorMap]);
 
+    const availabilityEvents = useMemo<EventInput[]>(() => {
+        return availabilitySlots.map((slot) => {
+            const color = slot.doctorId ? availabilityColorMap.get(slot.doctorId) : undefined;
+            return {
+                id: `availability-${slot.doctorId || 'unknown'}-${slot.startAt}-${slot.endAt}`,
+                start: slot.startAt,
+                end: slot.endAt,
+                display: 'background',
+                backgroundColor: color || 'rgba(56, 189, 248, 0.14)',
+                classNames: ['fc-availability-bg'],
+                extendedProps: { kind: 'availability', doctorId: slot.doctorId },
+            };
+        });
+    }, [availabilitySlots, availabilityColorMap]);
+
     const samsEventItems = useMemo<EventInput[]>(() => {
         return samsEvents.map((event) => {
             const id = event._id || event.id || '';
@@ -298,8 +371,8 @@ const CalendarsIndex = () => {
     }, [samsEvents]);
 
     const events = useMemo<EventInput[]>(() => {
-        return [...appointmentEvents, ...samsEventItems];
-    }, [appointmentEvents, samsEventItems]);
+        return [...availabilityEvents, ...appointmentEvents, ...samsEventItems];
+    }, [availabilityEvents, appointmentEvents, samsEventItems]);
 
     const handleDatesSet = (info: DatesSetArg) => {
         setViewTitle(info.view.title);
@@ -308,10 +381,14 @@ const CalendarsIndex = () => {
         viewRangeRef.current = range;
         setViewRange(range);
         loadAppointments(range);
+        loadAvailability(range, filteredCalendarIds);
         loadSamsEvents(range);
     };
 
     const handleEventClick = (info: EventClickArg) => {
+        if (info.event.extendedProps?.kind === 'availability') {
+            return;
+        }
         if (info.event.extendedProps?.kind === 'sams') {
             const target = samsEventById.get(info.event.id);
             if (!target) return;
@@ -326,6 +403,18 @@ const CalendarsIndex = () => {
     };
 
     const handleEventDidMount = (info: EventMountArg) => {
+        if (info.event.extendedProps?.kind === 'availability') {
+            info.el.style.cursor = 'default';
+            const start = info.event.start ? formatDateTimeFR(info.event.start) : '';
+            const end = info.event.end ? formatDateTimeFR(info.event.end) : '';
+            const range = end ? `${start} - ${end}` : start;
+            const doctorId = info.event.extendedProps?.doctorId as string | undefined;
+            const doctor = doctorId ? doctorMap.get(doctorId) : null;
+            const doctorLabel = doctor?.name || doctor?.identifier;
+            const label = doctorLabel ? `Disponibilite Dr ${doctorLabel}` : 'Disponibilite';
+            info.el.title = range ? `${label} (${range})` : label;
+            return;
+        }
         info.el.style.cursor = 'pointer';
         const start = info.event.start ? formatDateTimeFR(info.event.start) : '';
         const end = info.event.end ? formatDateTimeFR(info.event.end) : '';
