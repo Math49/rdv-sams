@@ -15,7 +15,7 @@ class PatientTokenController extends Controller
 
     public function store(ValidatePatientTokenRequest $request): JsonResponse
     {
-        $plainToken = $request->validated()['token'];
+        $plainToken = trim($request->validated()['token']);
         $bookingToken = $this->bookingTokenService->validatePlainToken($plainToken);
 
         if (! $bookingToken) {

@@ -7,13 +7,21 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ValidatePatientTokenRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $token = $this->input('token');
+        if (is_string($token)) {
+            $this->merge(['token' => trim($token)]);
+        }
+    }
+
     /**
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'token' => ['required', 'string'],
+            'token' => ['required', 'string', 'size:10'],
         ];
     }
 }

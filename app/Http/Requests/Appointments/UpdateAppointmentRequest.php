@@ -20,6 +20,7 @@ class UpdateAppointmentRequest extends FormRequest
             'patient.firstname' => ['sometimes', 'string'],
             'patient.phone' => ['sometimes', 'string'],
             'patient.company' => ['sometimes', 'nullable', 'string'],
+            'reason' => ['sometimes', 'nullable', 'string', 'max:500'],
         ];
     }
 }

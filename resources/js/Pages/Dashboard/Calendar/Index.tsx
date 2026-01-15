@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import dayjs from 'dayjs';
 import { Head, Link } from '@inertiajs/react';
 import { Button, Card, CardBody, Select, SelectItem, Spinner, Switch } from '@heroui/react';
 import FullCalendar from '@fullcalendar/react';
@@ -6,10 +7,12 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import type { DatesSetArg, EventClickArg, EventInput } from '@fullcalendar/core';
+import type { DatesSetArg, EventClickArg, EventInput, EventMountArg } from '@fullcalendar/core';
+import type { SharedSelection } from '@heroui/system';
 
 import { CalendarCard } from '@/Components/dashboard/CalendarCard';
 import { AppointmentDetailsDrawer } from '@/Components/dashboard/AppointmentDetailsDrawer';
+import { SamsEventDetailsModal } from '@/Components/dashboard/SamsEventDetailsModal';
 import { GenerateTokenModal } from '@/Components/dashboard/GenerateTokenModal';
 import { TransferAppointmentModal } from '@/Components/dashboard/TransferAppointmentModal';
 import { ConfirmDialog } from '@/Components/ui/ConfirmDialog';
@@ -17,7 +20,7 @@ import { PageHeader } from '@/Components/ui/PageHeader';
 import { DashboardLayout } from '@/Layouts/DashboardLayout';
 import { useIsAdmin } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
-import { toIsoUtc } from '@/lib/date';
+import { formatDateTimeFR, toIsoUtc } from '@/lib/date';
 import type { ApiResponse, Appointment, Calendar, Doctor, SamsEvent } from '@/lib/types';
 
 const viewOptions = [
@@ -28,7 +31,7 @@ const viewOptions = [
 ] as const;
 
 type CalendarView = (typeof viewOptions)[number]['key'];
-type Selection = 'all' | Set<string>;
+type Selection = SharedSelection;
 
 type ViewRange = {
     start: Date;
@@ -48,6 +51,16 @@ const getEventTextColor = (hexColor?: string | null) => {
     return luminance > 0.6 ? '#0B0B0B' : '#F8FAFC';
 };
 
+const isAllDayEvent = (startAt: string, endAt?: string | null) => {
+    const start = dayjs(startAt);
+    if (!start.isValid()) return false;
+    const end = endAt ? dayjs(endAt) : null;
+    const startMidnight = start.hour() === 0 && start.minute() === 0 && start.second() === 0;
+    const endMidnight = end ? end.hour() === 0 && end.minute() === 0 && end.second() === 0 : true;
+
+    return startMidnight && endMidnight;
+};
+
 const CalendarIndex = () => {
     const isAdmin = useIsAdmin();
     const calendarRef = useRef<FullCalendar | null>(null);
@@ -61,10 +74,13 @@ const CalendarIndex = () => {
     const [viewTitle, setViewTitle] = useState('');
     const [activeView, setActiveView] = useState<CalendarView>('timeGridWeek');
     const [viewRange, setViewRange] = useState<ViewRange | null>(null);
+    const viewRangeRef = useRef<ViewRange | null>(null);
     const [includeSams, setIncludeSams] = useState(true);
 
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+    const [samsDetailsOpen, setSamsDetailsOpen] = useState(false);
+    const [selectedSamsEvent, setSelectedSamsEvent] = useState<SamsEvent | null>(null);
     const [tokenModalOpen, setTokenModalOpen] = useState(false);
     const [transferOpen, setTransferOpen] = useState(false);
     const [cancelOpen, setCancelOpen] = useState(false);
@@ -124,7 +140,7 @@ const CalendarIndex = () => {
         };
 
         boot();
-    }, [loadCalendars, loadDoctors, loadSamsEvents]);
+    }, [loadCalendars, loadDoctors]);
 
     useEffect(() => {
         if (calendars.length === 0) return;
@@ -138,30 +154,52 @@ const CalendarIndex = () => {
     }, [calendars]);
 
     useEffect(() => {
-        if (!viewRange) return;
-        loadAppointments(viewRange);
-    }, [loadAppointments, viewRange]);
+        const range = viewRangeRef.current;
+        if (!range) return;
+        loadAppointments(range);
+    }, [loadAppointments]);
 
     useEffect(() => {
-        if (!viewRange || !includeSams) return;
-        loadSamsEvents(viewRange);
-    }, [includeSams, loadSamsEvents, viewRange]);
+        if (!includeSams) {
+            setSamsEvents([]);
+            return;
+        }
+        const range = viewRangeRef.current;
+        if (!range) return;
+        loadSamsEvents(range);
+    }, [includeSams, loadSamsEvents]);
 
     const appointmentById = useMemo(() => {
-        return new Map(
+        return new Map<string, Appointment>(
             appointments
-                .map((appointment) => [appointment._id || appointment.id || '', appointment])
+                .map((appointment) => [appointment._id || appointment.id || '', appointment] as const)
                 .filter(([id]) => Boolean(id)),
         );
     }, [appointments]);
 
+    const samsEventById = useMemo(() => {
+        return new Map<string, SamsEvent>(
+            samsEvents
+                .map((event) => [`sams-${event._id || event.id || ''}`, event] as const)
+                .filter(([id]) => Boolean(id)),
+        );
+    }, [samsEvents]);
+
     const calendarMap = useMemo(() => {
-        return new Map(
+        return new Map<string, Calendar>(
             calendars
-                .map((calendar) => [calendar._id || calendar.id || '', calendar])
+                .map((calendar) => [calendar._id || calendar.id || '', calendar] as const)
                 .filter(([id]) => Boolean(id)),
         );
     }, [calendars]);
+
+    const doctorMap = useMemo(() => {
+        return new Map<string, Doctor>(
+            doctors
+                .map((doctor) => [doctor._id || doctor.id || '', doctor] as const)
+                .filter(([id]) => Boolean(id)),
+        );
+    }, [doctors]);
 
     const filteredAppointments = useMemo(() => {
         if (calendarIds.length === 0) return [];
@@ -187,7 +225,7 @@ const CalendarIndex = () => {
                 backgroundColor: color,
                 borderColor: color,
                 textColor: getEventTextColor(color),
-                extendedProps: { type: 'appointment' },
+                extendedProps: { kind: 'appointment' },
             };
         });
     }, [filteredAppointments, calendarMap]);
@@ -196,15 +234,21 @@ const CalendarIndex = () => {
         if (!includeSams) return [];
         return samsEvents.map((event) => {
             const id = event._id || event.id || '';
+            const allDay = isAllDayEvent(event.startAt, event.endAt);
             return {
                 id: `sams-${id}`,
                 title: event.title || 'SAMS',
                 start: event.startAt,
                 end: event.endAt,
+                allDay,
                 backgroundColor: '#94A3B8',
                 borderColor: '#CBD5F5',
                 textColor: '#0B0B0B',
-                extendedProps: { type: 'sams' },
+                extendedProps: {
+                    kind: 'sams',
+                    description: event.description,
+                    location: event.location,
+                },
             };
         });
     }, [samsEvents, includeSams]);
@@ -216,15 +260,35 @@ const CalendarIndex = () => {
     const handleDatesSet = (info: DatesSetArg) => {
         setViewTitle(info.view.title);
         setActiveView(info.view.type as CalendarView);
-        setViewRange({ start: info.start, end: info.end });
+        const range = { start: info.start, end: info.end };
+        viewRangeRef.current = range;
+        setViewRange(range);
+        loadAppointments(range);
+        if (includeSams) {
+            loadSamsEvents(range);
+        }
     };
 
     const handleEventClick = (info: EventClickArg) => {
-        if (info.event.extendedProps?.type === 'sams') return;
+        if (info.event.extendedProps?.kind === 'sams') {
+            const target = samsEventById.get(info.event.id);
+            if (!target) return;
+            setSelectedSamsEvent(target);
+            setSamsDetailsOpen(true);
+            return;
+        }
         const appointment = appointmentById.get(info.event.id);
         if (!appointment) return;
         setSelectedAppointment(appointment);
         setDrawerOpen(true);
+    };
+
+    const handleEventDidMount = (info: EventMountArg) => {
+        info.el.style.cursor = 'pointer';
+        const start = info.event.start ? formatDateTimeFR(info.event.start) : '';
+        const end = info.event.end ? formatDateTimeFR(info.event.end) : '';
+        const range = end ? `${start} - ${end}` : start;
+        info.el.title = range ? `${info.event.title} (${range})` : info.event.title;
     };
 
     const handleCalendarChange = (keys: Selection) => {
@@ -268,6 +332,22 @@ const CalendarIndex = () => {
     };
 
     const calendarCards = calendars.filter((calendar) => calendar.scope !== 'sams');
+    const selectedCalendar = selectedAppointment
+        ? calendarMap.get(selectedAppointment.calendarId)
+        : null;
+    const calendarLabel = selectedCalendar
+        ? selectedCalendar.label ||
+          (selectedCalendar.scope === 'doctor'
+              ? 'Visite medicale'
+              : selectedCalendar.scope === 'specialty'
+                ? 'Specialite'
+                : 'SAMS')
+        : null;
+    const doctorLabel = selectedAppointment
+        ? (doctorMap.get(selectedAppointment.doctorId)?.name ||
+              doctorMap.get(selectedAppointment.doctorId)?.identifier ||
+              null)
+        : null;
 
     return (
         <DashboardLayout>
@@ -329,7 +409,7 @@ const CalendarIndex = () => {
                                 {calendarCards.map((calendar) => {
                                     const id = calendar._id || calendar.id || '';
                                     return (
-                                        <SelectItem key={id} value={id}>
+                                        <SelectItem key={id}>
                                             {calendar.label ||
                                                 (calendar.scope === 'doctor' ? 'Visite medicale' : 'Specialite')}
                                         </SelectItem>
@@ -369,10 +449,11 @@ const CalendarIndex = () => {
                                 height="auto"
                                 expandRows
                                 dayMaxEventRows={3}
-                                slotMinTime="07:00:00"
-                                slotMaxTime="20:00:00"
+                                slotMinTime="00:00:00"
+                                slotMaxTime="23:59:59"
                                 events={events}
                                 eventClick={handleEventClick}
+                                eventDidMount={handleEventDidMount}
                                 datesSet={handleDatesSet}
                             />
                         </CardBody>
@@ -389,6 +470,8 @@ const CalendarIndex = () => {
             <AppointmentDetailsDrawer
                 isOpen={drawerOpen}
                 appointment={selectedAppointment}
+                calendarLabel={calendarLabel}
+                doctorName={doctorLabel}
                 onClose={() => {
                     setDrawerOpen(false);
                     setSelectedAppointment(null);
@@ -414,6 +497,15 @@ const CalendarIndex = () => {
                 isLoading={cancelLoading}
                 onClose={() => setCancelOpen(false)}
                 onConfirm={handleCancelAppointment}
+            />
+
+            <SamsEventDetailsModal
+                isOpen={samsDetailsOpen}
+                event={selectedSamsEvent}
+                onClose={() => {
+                    setSamsDetailsOpen(false);
+                    setSelectedSamsEvent(null);
+                }}
             />
         </DashboardLayout>
     );

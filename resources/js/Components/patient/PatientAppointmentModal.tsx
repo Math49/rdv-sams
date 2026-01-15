@@ -1,7 +1,7 @@
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/react';
 
 import type { AppointmentType, AvailabilitySlot, PatientInfo } from '@/lib/types';
-import { formatDateTime } from '@/lib/date';
+import { formatDateTimeFR } from '@/lib/date';
 import { PatientForm } from './PatientForm';
 
 type PatientAppointmentModalProps = {
@@ -34,7 +34,7 @@ export const PatientAppointmentModal = ({
                         <p className="font-semibold text-white">{appointmentType?.label || 'Rendez-vous'}</p>
                         {slot ? (
                             <p>
-                                {formatDateTime(slot.startAt)} - {formatDateTime(slot.endAt)}
+                                {formatDateTimeFR(slot.startAt)} - {formatDateTimeFR(slot.endAt)}
                             </p>
                         ) : null}
                     </div>

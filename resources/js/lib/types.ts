@@ -113,6 +113,7 @@ export type Appointment = {
     createdBy?: string | null;
     patient?: PatientInfo;
     transfer?: AppointmentTransfer | null;
+    reason?: string | null;
 };
 
 export type SamsEvent = {

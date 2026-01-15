@@ -29,7 +29,7 @@ class SpecialtyManagementController extends Controller
 
         $specialty = Specialty::query()->create([
             'label' => $data['label'],
-            'code' => Str::slug($data['label']),
+            'code' => $this->generateUniqueCode($data['label']),
             'color' => $data['color'] ?? null,
             'isActive' => $data['isActive'] ?? true,
         ]);
@@ -55,7 +55,9 @@ class SpecialtyManagementController extends Controller
 
         if (array_key_exists('label', $data)) {
             $specialty->label = $data['label'];
-            $specialty->code = Str::slug($data['label']);
+            if ($data['label'] !== $specialty->getOriginal('label')) {
+                $specialty->code = $this->generateUniqueCode($data['label'], $id);
+            }
         }
         if (array_key_exists('color', $data)) {
             $specialty->color = $data['color'];
@@ -85,5 +87,32 @@ class SpecialtyManagementController extends Controller
             'message' => 'Specialty deleted',
             'data' => null,
         ]);
+    }
+
+    private function generateUniqueCode(string $label, ?string $ignoreId = null): string
+    {
+        $base = Str::slug($label);
+        if ($base === '') {
+            $base = 'specialty';
+        }
+
+        $code = $base;
+        $suffix = 2;
+
+        while ($this->codeExists($code, $ignoreId)) {
+            $code = $base.'-'.$suffix;
+            $suffix++;
+        }
+
+        return $code;
+    }
+
+    private function codeExists(string $code, ?string $ignoreId = null): bool
+    {
+        $query = Specialty::query()->where('code', $code);
+        if ($ignoreId) {
+            $query->where('_id', '!=', new ObjectId($ignoreId));
+        }
+        return $query->exists();
     }
 }

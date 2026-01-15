@@ -179,7 +179,7 @@ const Rules = ({ calendarId }: RulesProps) => {
                             }}
                         >
                             {dayLabels.map((label, index) => (
-                                <SelectItem key={String(index)} value={String(index)}>
+                                <SelectItem key={String(index)}>
                                     {label}
                                 </SelectItem>
                             ))}

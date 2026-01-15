@@ -10,6 +10,7 @@ import {
     SelectItem,
     Switch,
 } from '@heroui/react';
+import type { SharedSelection } from '@heroui/system';
 
 import type { User } from '@/lib/types';
 
@@ -33,24 +34,34 @@ type AccountModalProps = {
     editing: User | null;
     form: AccountForm;
     specialties: SpecialtyOption[];
+    errors?: Record<string, string[]>;
     onChange: (form: AccountForm) => void;
     onClose: () => void;
     onSave: () => void;
     isSaving?: boolean;
 };
 
-type Selection = 'all' | Set<string>;
+type Selection = SharedSelection;
 
 export const AccountModal = ({
     isOpen,
     editing,
     form,
     specialties,
+    errors,
     onChange,
     onClose,
     onSave,
     isSaving,
 }: AccountModalProps) => {
+    const specialtyIdSet = new Set(specialties.map((item) => item.id));
+    const selectedSpecialtyKeys = form.specialtyIds.filter((id) => specialtyIdSet.has(id));
+    const nameError = errors?.name?.[0];
+    const identifierError = errors?.identifier?.[0];
+    const passwordError = errors?.password?.[0];
+    const rolesError = errors?.roles?.[0];
+    const specialtyError = errors?.specialtyIds?.[0];
+
     const handleSpecialtiesChange = (keys: Selection) => {
         if (keys === 'all') {
             onChange({ ...form, specialtyIds: specialties.map((item) => item.id) });
@@ -82,6 +93,8 @@ export const AccountModal = ({
                             label="Nom"
                             value={form.lastName}
                             onValueChange={(value) => onChange({ ...form, lastName: value })}
+                            isInvalid={Boolean(nameError)}
+                            errorMessage={nameError}
                         />
                     </div>
                     <Input
@@ -89,6 +102,8 @@ export const AccountModal = ({
                         value={form.identifier}
                         onValueChange={(value) => onChange({ ...form, identifier: value })}
                         isRequired
+                        isInvalid={Boolean(identifierError)}
+                        errorMessage={identifierError}
                     />
                     <Input
                         label="Mot de passe"
@@ -96,16 +111,20 @@ export const AccountModal = ({
                         value={form.password}
                         onValueChange={(value) => onChange({ ...form, password: value })}
                         isRequired={!editing}
+                        isInvalid={Boolean(passwordError)}
+                        errorMessage={passwordError}
                     />
                     <Select
                         label="Specialites"
                         selectionMode="multiple"
-                        selectedKeys={new Set(form.specialtyIds)}
+                        selectedKeys={new Set(selectedSpecialtyKeys)}
                         onSelectionChange={handleSpecialtiesChange}
                         isDisabled={specialties.length === 0}
+                        isInvalid={Boolean(specialtyError)}
+                        errorMessage={specialtyError}
                     >
                         {specialties.map((specialty) => (
-                            <SelectItem key={specialty.id} value={specialty.id}>
+                            <SelectItem key={specialty.id}>
                                 {specialty.label}
                             </SelectItem>
                         ))}
@@ -120,11 +139,13 @@ export const AccountModal = ({
                         selectionMode="multiple"
                         selectedKeys={new Set(form.roles)}
                         onSelectionChange={handleRolesChange}
+                        isInvalid={Boolean(rolesError)}
+                        errorMessage={rolesError}
                     >
-                        <SelectItem key="doctor" value="doctor">
+                        <SelectItem key="doctor">
                             doctor
                         </SelectItem>
-                        <SelectItem key="admin" value="admin">
+                        <SelectItem key="admin">
                             admin
                         </SelectItem>
                     </Select>

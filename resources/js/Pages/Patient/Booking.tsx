@@ -22,7 +22,7 @@ import type { DatesSetArg, EventClickArg, EventInput } from '@fullcalendar/core'
 import { PatientLayout } from '@/Layouts/PatientLayout';
 import { PatientForm } from '@/Components/patient/PatientForm';
 import { api } from '@/lib/api';
-import { formatDateTime, toIsoUtc } from '@/lib/date';
+import { formatDateTimeFR, toIsoUtc } from '@/lib/date';
 import { clearPatientContext, getPatientContext } from '@/lib/patient';
 import type { ApiResponse, AppointmentType, AvailabilitySlot, PatientInfo } from '@/lib/types';
 import { useToast } from '@/hooks/useToast';
@@ -230,7 +230,7 @@ const Booking = ({ calendarId }: BookingProps) => {
                                 {appointmentTypes.map((type) => {
                                     const id = type._id || type.id || '';
                                     return (
-                                        <SelectItem key={id} value={id}>
+                                        <SelectItem key={id}>
                                             {type.label}
                                         </SelectItem>
                                     );
@@ -285,8 +285,8 @@ const Booking = ({ calendarId }: BookingProps) => {
                                 height="auto"
                                 expandRows
                                 dayMaxEventRows={3}
-                                slotMinTime="07:00:00"
-                                slotMaxTime="20:00:00"
+                                slotMinTime="00:00:00"
+                                slotMaxTime="23:59:59"
                                 events={events}
                                 eventClick={handleEventClick}
                                 datesSet={handleDatesSet}
@@ -302,8 +302,8 @@ const Booking = ({ calendarId }: BookingProps) => {
                     <ModalBody className="space-y-4">
                         {selectedSlot ? (
                             <div className="rounded-large border border-white/10 bg-white/5 px-4 py-3 text-sm">
-                                Creneau selectionne: {formatDateTime(selectedSlot.startAt)} -{' '}
-                                {formatDateTime(selectedSlot.endAt)}
+                                Creneau selectionne: {formatDateTimeFR(selectedSlot.startAt)} -{' '}
+                                {formatDateTimeFR(selectedSlot.endAt)}
                             </div>
                         ) : null}
                         <PatientForm value={patient} onChange={setPatient} />

@@ -5,7 +5,7 @@ import { Button, Card, CardBody, Input, Spinner, Textarea } from '@heroui/react'
 import { PageHeader } from '@/Components/ui/PageHeader';
 import { SectionCard } from '@/Components/ui/SectionCard';
 import { DashboardLayout } from '@/Layouts/DashboardLayout';
-import { calendarApi } from '@/lib/api';
+import { api, calendarApi } from '@/lib/api';
 import type { ApiResponse, Calendar } from '@/lib/types';
 import { useToast } from '@/hooks/useToast';
 

@@ -29,7 +29,6 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState<AppointmentType | null>(null);
     const [form, setForm] = useState({
-        code: '',
         label: '',
         durationMinutes: '30',
         bufferBeforeMinutes: '0',
@@ -57,7 +56,6 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
     const openCreate = () => {
         setEditing(null);
         setForm({
-            code: '',
             label: '',
             durationMinutes: '30',
             bufferBeforeMinutes: '0',
@@ -70,7 +68,6 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
     const openEdit = (item: AppointmentType) => {
         setEditing(item);
         setForm({
-            code: item.code,
             label: item.label,
             durationMinutes: String(item.durationMinutes),
             bufferBeforeMinutes: String(item.bufferBeforeMinutes ?? 0),
@@ -82,7 +79,6 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
 
     const handleSave = async () => {
         const payload = {
-            code: form.code,
             label: form.label,
             durationMinutes: Number(form.durationMinutes),
             bufferBeforeMinutes: Number(form.bufferBeforeMinutes),
@@ -134,9 +130,7 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
                                 >
                                     <div>
                                         <p className="text-sm font-semibold">{item.label}</p>
-                                        <p className="text-xs text-foreground/60">
-                                            {item.code} - {item.durationMinutes} min
-                                        </p>
+                                        <p className="text-xs text-foreground/60">{item.durationMinutes} min</p>
                                     </div>
                                     <div className="flex gap-2">
                                         <Button size="sm" variant="flat" onPress={() => openEdit(item)}>
@@ -157,7 +151,6 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
                 <ModalContent>
                     <ModalHeader>{editing ? 'Modifier le type' : 'Nouveau type'}</ModalHeader>
                     <ModalBody className="space-y-3">
-                        <Input label="Code" value={form.code} onValueChange={(value) => setForm({ ...form, code: value })} />
                         <Input label="Libelle" value={form.label} onValueChange={(value) => setForm({ ...form, label: value })} />
                         <Input
                             label="Duree (min)"

@@ -108,10 +108,10 @@ const DoctorsEdit = ({ id }: DoctorsEditProps) => {
                             setRoles(Array.from(keys).map(String));
                         }}
                     >
-                        <SelectItem key="doctor" value="doctor">
+                        <SelectItem key="doctor">
                             doctor
                         </SelectItem>
-                        <SelectItem key="admin" value="admin">
+                        <SelectItem key="admin">
                             admin
                         </SelectItem>
                     </Select>

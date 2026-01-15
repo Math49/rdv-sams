@@ -1,6 +1,6 @@
 import { Button } from '@heroui/react';
 
-import { formatDateTime } from '@/lib/date';
+import { formatDateTimeFR } from '@/lib/date';
 import type { AvailabilitySlot } from '@/lib/types';
 
 type SlotListProps = {
@@ -25,7 +25,7 @@ export const SlotList = ({ slots, selected, onSelect }: SlotListProps) => {
                         color={isSelected ? 'primary' : 'default'}
                         onPress={() => onSelect(slot)}
                     >
-                        {formatDateTime(slot.startAt)}
+                        {formatDateTimeFR(slot.startAt)}
                     </Button>
                 );
             })}

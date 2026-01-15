@@ -7,7 +7,7 @@ import { SectionCard } from '@/Components/ui/SectionCard';
 import { StatusPill } from '@/Components/ui/StatusPill';
 import { AdminLayout } from '@/Layouts/AdminLayout';
 import { api } from '@/lib/api';
-import { formatDate, formatDateTime } from '@/lib/date';
+import { formatDate, formatDateTimeFR } from '@/lib/date';
 import type { ApiResponse, Appointment, Doctor } from '@/lib/types';
 
 const AdminAppointmentsIndex = () => {
@@ -78,7 +78,7 @@ const AdminAppointmentsIndex = () => {
                             {doctors.map((doctor) => {
                                 const id = doctor._id || doctor.id || '';
                                 return (
-                                    <SelectItem key={id} value={id}>
+                                    <SelectItem key={id}>
                                         {doctor.name || doctor.identifier}
                                     </SelectItem>
                                 );
@@ -103,7 +103,7 @@ const AdminAppointmentsIndex = () => {
                                     <div>
                                         <p className="text-sm font-semibold">
                                             {appointment.patient?.lastname || 'Patient'} -{' '}
-                                            {formatDateTime(appointment.startAt)}
+                                            {formatDateTimeFR(appointment.startAt)}
                                         </p>
                                         <p className="text-xs text-foreground/60">{appointment.doctorId}</p>
                                     </div>

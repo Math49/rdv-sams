@@ -217,6 +217,7 @@ class DatabaseSeeder extends Seeder
                     'phone' => '0601020304',
                     'company' => 'Clinique Nord',
                 ],
+                'reason' => 'Consultation generale',
             ],
             [
                 'calendar' => $doctorCalendar,
@@ -228,6 +229,7 @@ class DatabaseSeeder extends Seeder
                     'phone' => '0605060708',
                     'company' => null,
                 ],
+                'reason' => 'Consultation generale',
             ],
             [
                 'calendar' => $gynCalendar,
@@ -239,6 +241,7 @@ class DatabaseSeeder extends Seeder
                     'phone' => '0611223344',
                     'company' => null,
                 ],
+                'reason' => 'Suivi de grossesse',
             ],
             [
                 'calendar' => $legalCalendar,
@@ -250,6 +253,7 @@ class DatabaseSeeder extends Seeder
                     'phone' => '0622334455',
                     'company' => 'Cabinet Expertises',
                 ],
+                'reason' => 'Expertise medico-legale',
             ],
             [
                 'calendar' => $doctorCalendar,
@@ -261,6 +265,7 @@ class DatabaseSeeder extends Seeder
                     'phone' => '0633445566',
                     'company' => null,
                 ],
+                'reason' => 'Consultation generale',
             ],
             [
                 'calendar' => $gynCalendar,
@@ -272,6 +277,7 @@ class DatabaseSeeder extends Seeder
                     'phone' => '0644556677',
                     'company' => null,
                 ],
+                'reason' => 'Suivi de grossesse',
             ],
             [
                 'calendar' => $doctorCalendar,
@@ -283,6 +289,7 @@ class DatabaseSeeder extends Seeder
                     'phone' => '0655667788',
                     'company' => null,
                 ],
+                'reason' => 'Consultation generale',
             ],
             [
                 'calendar' => $legalCalendar,
@@ -294,6 +301,7 @@ class DatabaseSeeder extends Seeder
                     'phone' => '0666778899',
                     'company' => 'Assurances Sud',
                 ],
+                'reason' => 'Expertise medico-legale',
             ],
         ];
 
@@ -319,6 +327,7 @@ class DatabaseSeeder extends Seeder
                     'status' => 'booked',
                     'createdBy' => 'seed',
                     'patient' => $appointment['patient'],
+                    'reason' => $appointment['reason'],
                 ]
             );
         }

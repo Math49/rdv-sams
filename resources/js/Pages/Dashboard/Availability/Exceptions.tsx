@@ -168,10 +168,10 @@ const Exceptions = ({ calendarId }: ExceptionsProps) => {
                                 setForm({ ...form, kind: String(first) });
                             }}
                         >
-                            <SelectItem key="remove" value="remove">
+                            <SelectItem key="remove">
                                 Indisponible
                             </SelectItem>
-                            <SelectItem key="add" value="add">
+                            <SelectItem key="add">
                                 Creneau ajoute
                             </SelectItem>
                         </Select>

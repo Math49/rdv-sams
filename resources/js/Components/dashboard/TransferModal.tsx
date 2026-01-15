@@ -73,7 +73,7 @@ export const TransferModal = ({ isOpen, appointmentId, doctors, onClose, onTrans
                         {doctors.map((doctor) => {
                             const id = doctor._id || doctor.id || '';
                             return (
-                                <SelectItem key={id} value={id}>
+                                <SelectItem key={id}>
                                     {doctor.name || doctor.identifier}
                                 </SelectItem>
                             );

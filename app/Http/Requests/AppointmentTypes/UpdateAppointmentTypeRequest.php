@@ -13,7 +13,6 @@ class UpdateAppointmentTypeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'string'],
             'label' => ['sometimes', 'string'],
             'durationMinutes' => ['sometimes', 'integer', 'min:1'],
             'bufferBeforeMinutes' => ['sometimes', 'integer', 'min:0'],

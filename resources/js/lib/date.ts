@@ -1,7 +1,9 @@
 import dayjs from 'dayjs';
+import 'dayjs/locale/fr';
 import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(utc);
+dayjs.locale('fr');
 
 export const formatDate = (value?: string | Date | null): string => {
     if (!value) return '';
@@ -16,6 +18,11 @@ export const formatTime = (value?: string | Date | null): string => {
 export const formatDateTime = (value?: string | Date | null): string => {
     if (!value) return '';
     return dayjs(value).format('YYYY-MM-DD HH:mm');
+};
+
+export const formatDateTimeFR = (value?: string | Date | null): string => {
+    if (!value) return '';
+    return dayjs(value).format('DD/MM/YYYY HH:mm');
 };
 
 export const toDateTimeLocal = (value?: string | Date | null): string => {

@@ -3,12 +3,17 @@
 namespace App\Services;
 
 use App\Models\Appointment;
-use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use MongoDB\BSON\ObjectId;
 
 class AppointmentService
 {
-    public function hasOverlap(string $doctorId, Carbon $startAt, Carbon $endAt, ?string $ignoreAppointmentId = null): bool
+    public function hasOverlap(
+        string $doctorId,
+        CarbonInterface $startAt,
+        CarbonInterface $endAt,
+        ?string $ignoreAppointmentId = null
+    ): bool
     {
         $query = Appointment::query()
             ->where('doctorId', new ObjectId($doctorId))

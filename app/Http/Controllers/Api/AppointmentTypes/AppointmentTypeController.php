@@ -11,6 +11,7 @@ use App\Models\BookingToken;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use MongoDB\BSON\ObjectId;
 
 class AppointmentTypeController extends Controller
@@ -138,24 +139,13 @@ class AppointmentTypeController extends Controller
             ], 422);
         }
 
-        $exists = AppointmentType::query()
-            ->where('doctorId', new ObjectId($doctorId))
-            ->where('calendarId', new ObjectId($calendarId))
-            ->where('code', $data['code'])
-            ->exists();
-
-        if ($exists) {
-            return response()->json([
-                'message' => 'Appointment type code already exists',
-                'errors' => ['code' => ['Appointment type code already exists']],
-            ], 422);
-        }
+        $code = $this->generateUniqueCode($data['label'], $doctorId, $calendarId);
 
         $appointmentType = AppointmentType::query()->create([
             'doctorId' => $doctorId,
             'calendarId' => $calendarId,
             'specialtyId' => $data['specialtyId'] ?? $calendar->specialtyId,
-            'code' => $data['code'],
+            'code' => $code,
             'label' => $data['label'],
             'durationMinutes' => $data['durationMinutes'],
             'bufferBeforeMinutes' => $data['bufferBeforeMinutes'] ?? 0,
@@ -183,23 +173,15 @@ class AppointmentTypeController extends Controller
         }
 
         $data = $request->validated();
-        if (isset($data['code'])) {
-            $exists = AppointmentType::query()
-                ->where('doctorId', new ObjectId((string) $appointmentType->doctorId))
-                ->where('calendarId', new ObjectId((string) $appointmentType->calendarId))
-                ->where('code', $data['code'])
-                ->where('_id', '!=', new ObjectId($id))
-                ->exists();
-
-            if ($exists) {
-                return response()->json([
-                    'message' => 'Appointment type code already exists',
-                    'errors' => ['code' => ['Appointment type code already exists']],
-                ], 422);
-            }
-        }
-
         $appointmentType->fill($data);
+        if (array_key_exists('label', $data) && $data['label'] !== $appointmentType->getOriginal('label')) {
+            $appointmentType->code = $this->generateUniqueCode(
+                $data['label'],
+                (string) $appointmentType->doctorId,
+                (string) $appointmentType->calendarId,
+                $id
+            );
+        }
         $appointmentType->save();
 
         return response()->json([
@@ -227,5 +209,37 @@ class AppointmentTypeController extends Controller
             'message' => 'Appointment type deleted',
             'data' => null,
         ]);
+    }
+
+    private function generateUniqueCode(string $label, string $doctorId, string $calendarId, ?string $ignoreId = null): string
+    {
+        $base = Str::slug($label);
+        if ($base === '') {
+            $base = 'type';
+        }
+
+        $code = $base;
+        $suffix = 2;
+
+        while ($this->codeExists($code, $doctorId, $calendarId, $ignoreId)) {
+            $code = $base.'-'.$suffix;
+            $suffix++;
+        }
+
+        return $code;
+    }
+
+    private function codeExists(string $code, string $doctorId, string $calendarId, ?string $ignoreId = null): bool
+    {
+        $query = AppointmentType::query()
+            ->where('doctorId', new ObjectId($doctorId))
+            ->where('calendarId', new ObjectId($calendarId))
+            ->where('code', $code);
+
+        if ($ignoreId) {
+            $query->where('_id', '!=', new ObjectId($ignoreId));
+        }
+
+        return $query->exists();
     }
 }

@@ -3,6 +3,7 @@ import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Selec
 
 import { CopyToClipboardButton } from '@/Components/ui/CopyToClipboardButton';
 import { api } from '@/lib/api';
+import { formatDateTimeFR } from '@/lib/date';
 import type { ApiResponse, BookingTokenResponse, Calendar } from '@/lib/types';
 import { toast } from '@/hooks/useToast';
 
@@ -62,7 +63,7 @@ export const GenerateTokenModal = ({ isOpen, calendars, onClose }: GenerateToken
                             const fallback =
                                 calendar.scope === 'doctor' ? 'Visite medicale' : calendar.scope === 'specialty' ? 'Specialite' : 'SAMS';
                             return (
-                                <SelectItem key={id} value={id}>
+                                <SelectItem key={id}>
                                     {calendar.label || fallback}
                                 </SelectItem>
                             );
@@ -83,7 +84,7 @@ export const GenerateTokenModal = ({ isOpen, calendars, onClose }: GenerateToken
                                     <CopyToClipboardButton value={token.message} label="Copier le message" />
                                 </div>
                             ) : null}
-                            <p className="text-xs text-neutral-500">Expire le {token.expiresAt}</p>
+                            <p className="text-xs text-neutral-500">Expire le {formatDateTimeFR(token.expiresAt)}</p>
                         </div>
                     ) : null}
                 </ModalBody>

@@ -1,4 +1,5 @@
 import { Input, Select, SelectItem } from '@heroui/react';
+import type { SharedSelection } from '@heroui/system';
 
 import type { Calendar } from '@/lib/types';
 
@@ -8,7 +9,7 @@ export type CalendarFilterState = {
     calendarIds: string[];
 };
 
-type Selection = 'all' | Set<string>;
+type Selection = SharedSelection;
 
 type CalendarFiltersProps = {
     calendars: Calendar[];
@@ -55,7 +56,7 @@ export const CalendarFilters = ({ calendars, value, onChange }: CalendarFiltersP
                 {calendars.map((calendar) => {
                     const id = calendar._id || calendar.id || '';
                     return (
-                        <SelectItem key={id} value={id}>
+                        <SelectItem key={id}>
                             {calendar.label || `${calendar.scope} calendar`}
                         </SelectItem>
                     );

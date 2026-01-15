@@ -207,7 +207,7 @@ const AppointmentCalendar = ({ calendarId }: AppointmentCalendarProps) => {
                                     {appointmentTypes.map((type) => {
                                         const id = type._id || type.id || '';
                                         return (
-                                            <SelectItem key={id} value={id}>
+                                            <SelectItem key={id}>
                                                 {type.label}
                                             </SelectItem>
                                         );

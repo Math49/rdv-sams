@@ -40,6 +40,11 @@ class AppointmentController extends Controller
         if ($this->isAdmin($user)) {
             if ($doctorId = $request->query('doctorId')) {
                 $query->where('doctorId', new ObjectId($doctorId));
+            } else {
+                $doctorIds = $this->parseIds($request->query('doctorIds'));
+                if (count($doctorIds) > 0) {
+                    $query->whereIn('doctorId', $doctorIds);
+                }
             }
             if ($calendarId = $request->query('calendarId')) {
                 $query->where('calendarId', new ObjectId($calendarId));
@@ -160,6 +165,7 @@ class AppointmentController extends Controller
             'status' => 'booked',
             'createdBy' => $user->getKey(),
             'patient' => $data['patient'],
+            'reason' => $data['reason'] ?? null,
         ]);
 
         return response()->json([
@@ -258,6 +264,10 @@ class AppointmentController extends Controller
 
         if (isset($data['patient'])) {
             $appointment->patient = array_merge($appointment->patient ?? [], $data['patient']);
+        }
+
+        if (array_key_exists('reason', $data)) {
+            $appointment->reason = $data['reason'];
         }
 
         $appointment->save();
@@ -384,6 +394,7 @@ class AppointmentController extends Controller
             'status' => 'booked',
             'createdBy' => 'patient',
             'patient' => $data['patient'],
+            'reason' => $data['reason'] ?? null,
         ]);
 
         $bookingToken->usedAt = now('UTC');

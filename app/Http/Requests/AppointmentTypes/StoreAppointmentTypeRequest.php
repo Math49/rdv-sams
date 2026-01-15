@@ -15,7 +15,6 @@ class StoreAppointmentTypeRequest extends FormRequest
         return [
             'doctorId' => ['nullable', 'string', 'regex:/^[a-f0-9]{24}$/i'],
             'specialtyId' => ['nullable', 'string', 'regex:/^[a-f0-9]{24}$/i'],
-            'code' => ['required', 'string'],
             'label' => ['required', 'string'],
             'durationMinutes' => ['required', 'integer', 'min:1'],
             'bufferBeforeMinutes' => ['nullable', 'integer', 'min:0'],

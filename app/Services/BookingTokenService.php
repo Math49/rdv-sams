@@ -8,12 +8,14 @@ use App\Models\User;
 
 class BookingTokenService
 {
+    private const TOKEN_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
     /**
      * @return array{token: string, bookingToken: BookingToken}
      */
     public function generateForCalendar(Calendar $calendar, User $actor): array
     {
-        $plainToken = bin2hex(random_bytes(32));
+        $plainToken = $this->generateToken();
         $hash = hash('sha256', $plainToken);
 
         $bookingToken = new BookingToken([
@@ -52,5 +54,18 @@ class BookingTokenService
         }
 
         return $bookingToken;
+    }
+
+    private function generateToken(int $length = 10): string
+    {
+        $alphabet = self::TOKEN_ALPHABET;
+        $maxIndex = strlen($alphabet) - 1;
+        $token = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $token .= $alphabet[random_int(0, $maxIndex)];
+        }
+
+        return $token;
     }
 }

@@ -29,6 +29,7 @@ class Appointment extends Model
         'createdBy',
         'patient',
         'transfer',
+        'reason',
     ];
 
     protected function casts(): array
@@ -40,6 +41,7 @@ class Appointment extends Model
             'appointmentTypeId' => ObjectId::class,
             'startAt' => 'datetime',
             'endAt' => 'datetime',
+            'reason' => 'string',
         ];
     }
 

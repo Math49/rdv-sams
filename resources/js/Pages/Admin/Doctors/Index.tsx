@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { AxiosError } from 'axios';
 import { Head } from '@inertiajs/react';
 import {
     Button,
@@ -16,7 +17,7 @@ import { ConfirmDialog } from '@/Components/ui/ConfirmDialog';
 import { PageHeader } from '@/Components/ui/PageHeader';
 import { AdminLayout } from '@/Layouts/AdminLayout';
 import { adminApi } from '@/lib/api';
-import type { ApiResponse, Specialty, User } from '@/lib/types';
+import type { ApiError, ApiResponse, Specialty, User } from '@/lib/types';
 import { useToast } from '@/hooks/useToast';
 
 type SpecialtyOption = {
@@ -56,6 +57,22 @@ const buildName = (firstName: string, lastName: string): string | undefined => {
     return name.length > 0 ? name : undefined;
 };
 
+const resolveSpecialtyId = (value: unknown): string | null => {
+    if (typeof value === 'string') return value;
+    if (value && typeof value === 'object') {
+        const candidate = value as { _id?: string; id?: string };
+        return candidate._id || candidate.id || null;
+    }
+    return null;
+};
+
+const normalizeSpecialtyIds = (values?: unknown[]): string[] => {
+    if (!values) return [];
+    return values
+        .map((value) => resolveSpecialtyId(value))
+        .filter((id): id is string => Boolean(id));
+};
+
 const DoctorsIndex = () => {
     const [doctors, setDoctors] = useState<User[]>([]);
     const [specialties, setSpecialties] = useState<SpecialtyOption[]>([]);
@@ -63,6 +80,7 @@ const DoctorsIndex = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState<User | null>(null);
     const [form, setForm] = useState<FormState>(emptyForm);
+    const [formErrors, setFormErrors] = useState<Record<string, string[]>>({});
     const [saving, setSaving] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
@@ -108,6 +126,7 @@ const DoctorsIndex = () => {
     const openCreate = () => {
         setEditing(null);
         setForm(emptyForm);
+        setFormErrors({});
         setModalOpen(true);
     };
 
@@ -120,9 +139,10 @@ const DoctorsIndex = () => {
             lastName: parts.lastName,
             password: '',
             roles: doctor.roles || ['doctor'],
-            specialtyIds: doctor.specialtyIds || [],
+            specialtyIds: normalizeSpecialtyIds(doctor.specialtyIds as unknown[]),
             isActive: Boolean(doctor.isActive),
         });
+        setFormErrors({});
         setModalOpen(true);
     };
 
@@ -130,10 +150,12 @@ const DoctorsIndex = () => {
         setModalOpen(false);
         setEditing(null);
         setForm(emptyForm);
+        setFormErrors({});
     };
 
     const handleSave = async () => {
         setSaving(true);
+        setFormErrors({});
         try {
             const payload = {
                 identifier: form.identifier,
@@ -157,6 +179,13 @@ const DoctorsIndex = () => {
 
             closeModal();
             await loadDoctors();
+        } catch (error) {
+            const axiosError = error as AxiosError<ApiError>;
+            if (axiosError.response?.status === 422 && axiosError.response.data?.errors) {
+                setFormErrors(axiosError.response.data.errors);
+                return;
+            }
+            throw error;
         } finally {
             setSaving(false);
         }
@@ -208,11 +237,8 @@ const DoctorsIndex = () => {
                             {doctors.map((doctor) => {
                                 const id = doctor._id || doctor.id || '';
                                 const name = doctor.name || doctor.identifier;
-                                const labels = (doctor.specialtyIds || [])
-                                    .map((specialtyId) => {
-                                        const key = String(specialtyId);
-                                        return specialtyMap.get(key) || key;
-                                    })
+                                const labels = normalizeSpecialtyIds(doctor.specialtyIds as unknown[])
+                                    .map((specialtyId) => specialtyMap.get(specialtyId) || specialtyId)
                                     .filter(Boolean);
                                 return (
                                     <TableRow key={id}>
@@ -250,6 +276,7 @@ const DoctorsIndex = () => {
                 editing={editing}
                 form={form}
                 specialties={specialties}
+                errors={formErrors}
                 onChange={setForm}
                 onClose={closeModal}
                 onSave={handleSave}

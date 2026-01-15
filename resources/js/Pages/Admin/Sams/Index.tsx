@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import dayjs from 'dayjs';
 import { Head } from '@inertiajs/react';
 import { Button, Card, CardBody, Spinner } from '@heroui/react';
 import FullCalendar from '@fullcalendar/react';
@@ -6,14 +7,15 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import type { DateClickArg, DatesSetArg, EventClickArg, EventInput } from '@fullcalendar/core';
+import type { DateClickArg } from '@fullcalendar/interaction';
+import type { DatesSetArg, EventClickArg, EventInput, EventMountArg } from '@fullcalendar/core';
 
 import { SamsEventModal } from '@/Components/admin/SamsEventModal';
 import { ConfirmDialog } from '@/Components/ui/ConfirmDialog';
 import { PageHeader } from '@/Components/ui/PageHeader';
 import { AdminLayout } from '@/Layouts/AdminLayout';
 import { adminApi } from '@/lib/api';
-import { toDateTimeLocal, toIsoUtc } from '@/lib/date';
+import { formatDateTimeFR, toDateTimeLocal, toIsoUtc } from '@/lib/date';
 import type { ApiResponse, SamsEvent } from '@/lib/types';
 import { useToast } from '@/hooks/useToast';
 
@@ -23,6 +25,16 @@ const viewOptions = [
     { key: 'timeGridDay', label: 'Jour' },
     { key: 'listWeek', label: 'Agenda' },
 ] as const;
+
+const isAllDayEvent = (startAt: string, endAt?: string | null) => {
+    const start = dayjs(startAt);
+    if (!start.isValid()) return false;
+    const end = endAt ? dayjs(endAt) : null;
+    const startMidnight = start.hour() === 0 && start.minute() === 0 && start.second() === 0;
+    const endMidnight = end ? end.hour() === 0 && end.minute() === 0 && end.second() === 0 : true;
+
+    return startMidnight && endMidnight;
+};
 
 type CalendarView = (typeof viewOptions)[number]['key'];
 
@@ -94,9 +106,9 @@ const SamsIndex = () => {
     }, [loadEvents, viewRange]);
 
     const eventMap = useMemo(() => {
-        return new Map(
+        return new Map<string, SamsEvent>(
             events
-                .map((event) => [event._id || event.id || '', event])
+                .map((event) => [event._id || event.id || '', event] as const)
                 .filter(([id]) => Boolean(id)),
         );
     }, [events]);
@@ -104,11 +116,13 @@ const SamsIndex = () => {
     const calendarEvents = useMemo<EventInput[]>(() => {
         return events.map((event) => {
             const id = event._id || event.id || '';
+            const allDay = isAllDayEvent(event.startAt, event.endAt);
             return {
                 id,
                 title: event.title || 'SAMS',
                 start: event.startAt,
                 end: event.endAt,
+                allDay,
                 backgroundColor: '#94A3B8',
                 borderColor: '#CBD5F5',
                 textColor: '#0B0B0B',
@@ -134,6 +148,14 @@ const SamsIndex = () => {
             description: target.description || '',
         });
         setModalOpen(true);
+    };
+
+    const handleEventDidMount = (info: EventMountArg) => {
+        info.el.style.cursor = 'pointer';
+        const start = info.event.start ? formatDateTimeFR(info.event.start) : '';
+        const end = info.event.end ? formatDateTimeFR(info.event.end) : '';
+        const range = end ? `${start} - ${end}` : start;
+        info.el.title = range ? `${info.event.title} (${range})` : info.event.title;
     };
 
     const handleDateClick = (info: DateClickArg) => {
@@ -279,11 +301,12 @@ const SamsIndex = () => {
                                 height="auto"
                                 expandRows
                                 dayMaxEventRows={3}
-                                slotMinTime="07:00:00"
-                                slotMaxTime="20:00:00"
+                                slotMinTime="00:00:00"
+                                slotMaxTime="23:59:59"
                                 events={calendarEvents}
                                 eventClick={handleEventClick}
                                 dateClick={handleDateClick}
+                                eventDidMount={handleEventDidMount}
                                 datesSet={handleDatesSet}
                             />
                         </CardBody>

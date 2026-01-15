@@ -22,6 +22,7 @@ class StoreAppointmentRequest extends FormRequest
             'patient.firstname' => ['required', 'string'],
             'patient.phone' => ['required', 'string'],
             'patient.company' => ['nullable', 'string'],
+            'reason' => ['nullable', 'string', 'max:500'],
         ];
     }
 }
