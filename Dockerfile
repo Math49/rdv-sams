@@ -13,6 +13,12 @@ RUN npm run build
 FROM composer:2 AS vendor
 WORKDIR /app
 
+# Install ext-mongodb for composer platform requirements
+RUN apk add --no-cache $PHPIZE_DEPS openssl-dev \
+  && pecl install mongodb \
+  && docker-php-ext-enable mongodb \
+  && apk del $PHPIZE_DEPS openssl-dev
+
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --prefer-dist --no-interaction --no-progress
 
@@ -22,14 +28,18 @@ RUN composer dump-autoload --optimize
 
 # ---- Runtime (PHP 8.4) ----
 FROM php:8.4-cli-alpine
-
 WORKDIR /var/www/html
 
+# System deps + PHP extensions (NO MySQL)
 RUN apk add --no-cache \
     bash icu-dev oniguruma-dev libzip-dev zip unzip \
     freetype-dev libjpeg-turbo-dev libpng-dev \
+    $PHPIZE_DEPS openssl-dev \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
-  && docker-php-ext-install -j"$(nproc)" pdo_mysql mbstring intl zip gd opcache
+  && docker-php-ext-install -j"$(nproc)" mbstring intl zip gd opcache \
+  && pecl install mongodb \
+  && docker-php-ext-enable mongodb \
+  && apk del $PHPIZE_DEPS openssl-dev
 
 # App + vendor
 COPY --from=vendor /app /var/www/html
