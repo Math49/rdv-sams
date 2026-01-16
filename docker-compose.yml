@@ -1,0 +1,7 @@
+services:
+  php:
+    image: ghcr.io/iDrunK65/rdv-sams:latest
+    env_file:
+      - .env
+    ports:
+      - "8123:8000"
