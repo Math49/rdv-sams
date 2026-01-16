@@ -4,21 +4,25 @@
 FROM composer:2 AS vendor
 WORKDIR /app
 
-# MongoDB extension (required by composer deps)
+# MongoDB extension for composer platform checks
 RUN apk add --no-cache $PHPIZE_DEPS openssl-dev \
   && pecl install mongodb \
   && docker-php-ext-enable mongodb \
   && apk del $PHPIZE_DEPS openssl-dev
 
-# Copy full app so artisan exists
-COPY . .
+# Copy only composer files (cache-friendly)
+COPY composer.json composer.lock ./
 
-# Install PHP deps
+# IMPORTANT: disable scripts (no artisan during build)
 RUN composer install \
   --no-dev \
   --prefer-dist \
   --no-interaction \
-  --no-progress
+  --no-progress \
+  --no-scripts
+
+# Copy the rest of the app
+COPY . .
 
 
 ############################
@@ -27,15 +31,11 @@ RUN composer install \
 FROM php:8.4-cli-alpine AS assets
 WORKDIR /app
 
-# Node + npm (NO npm ci)
 RUN apk add --no-cache nodejs npm
 
-# Copy app + vendor
 COPY . .
 COPY --from=vendor /app/vendor /app/vendor
-COPY --from=vendor /app/bootstrap/cache /app/bootstrap/cache
 
-# Build frontend
 RUN npm install
 RUN npm run build
 
@@ -46,7 +46,6 @@ RUN npm run build
 FROM php:8.4-cli-alpine
 WORKDIR /var/www/html
 
-# System + PHP extensions (NO MySQL)
 RUN apk add --no-cache \
     bash icu-dev oniguruma-dev libzip-dev zip unzip \
     freetype-dev libjpeg-turbo-dev libpng-dev \
@@ -64,4 +63,5 @@ COPY --from=vendor /app /var/www/html
 COPY --from=assets /app/public/build /var/www/html/public/build
 
 EXPOSE 8000
+
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
