@@ -1,44 +1,52 @@
-# ---- PHP deps (Composer) ----
+############################
+# 1️⃣ Vendor (Composer)
+############################
 FROM composer:2 AS vendor
 WORKDIR /app
 
-# ext-mongodb needed for composer platform requirements
+# MongoDB extension (required by composer deps)
 RUN apk add --no-cache $PHPIZE_DEPS openssl-dev \
   && pecl install mongodb \
   && docker-php-ext-enable mongodb \
   && apk del $PHPIZE_DEPS openssl-dev
 
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --prefer-dist --no-interaction --no-progress
-
+# Copy full app so artisan exists
 COPY . .
-RUN composer dump-autoload --optimize
+
+# Install PHP deps
+RUN composer install \
+  --no-dev \
+  --prefer-dist \
+  --no-interaction \
+  --no-progress
 
 
-# ---- Assets build (Vite) ----
-# Build assets in an environment that has PHP + artisan + vendor (Wayfinder needs it)
+############################
+# 2️⃣ Assets (Vite / Wayfinder)
+############################
 FROM php:8.4-cli-alpine AS assets
 WORKDIR /app
 
-# Node + npm
+# Node + npm (NO npm ci)
 RUN apk add --no-cache nodejs npm
 
-# App code
+# Copy app + vendor
 COPY . .
-
-# Vendor from composer stage (so artisan has deps)
 COPY --from=vendor /app/vendor /app/vendor
 COPY --from=vendor /app/bootstrap/cache /app/bootstrap/cache
 
-# Build assets
+# Build frontend
+RUN npm install
 RUN npm run build
 
 
-# ---- Runtime ----
+############################
+# 3️⃣ Runtime
+############################
 FROM php:8.4-cli-alpine
 WORKDIR /var/www/html
 
-# System deps + PHP extensions (NO MySQL)
+# System + PHP extensions (NO MySQL)
 RUN apk add --no-cache \
     bash icu-dev oniguruma-dev libzip-dev zip unzip \
     freetype-dev libjpeg-turbo-dev libpng-dev \
@@ -49,10 +57,10 @@ RUN apk add --no-cache \
   && docker-php-ext-enable mongodb \
   && apk del $PHPIZE_DEPS openssl-dev
 
-# Copy app (including vendor)
+# App + vendor
 COPY --from=vendor /app /var/www/html
 
-# Copy built assets
+# Built assets
 COPY --from=assets /app/public/build /var/www/html/public/build
 
 EXPOSE 8000
