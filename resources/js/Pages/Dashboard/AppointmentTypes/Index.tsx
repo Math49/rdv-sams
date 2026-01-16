@@ -88,10 +88,10 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
 
         if (editing) {
             await api.patch(`/api/appointment-types/${editing._id || editing.id}`, payload);
-            success('Type mis a jour');
+            success('Type mis à jour');
         } else {
             await api.post(`/api/calendars/${calendarId}/appointment-types`, payload);
-            success('Type cree');
+            success('Type créé');
         }
 
         setModalOpen(false);
@@ -100,7 +100,7 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
 
     const handleDelete = async (item: AppointmentType) => {
         await api.delete(`/api/appointment-types/${item._id || item.id}`);
-        success('Type supprime');
+        success('Type supprimé');
         await load();
     };
 
@@ -110,7 +110,7 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
             <div className="space-y-6">
                 <PageHeader
                     title="Types de rendez-vous"
-                    subtitle="Definissez les types de rendez-vous disponibles."
+                    subtitle="Définissez les types de rendez-vous disponibles."
                     backHref={`/dashboard/config/${calendarId}`}
                     actions={
                         <Button color="primary" onPress={openCreate}>
@@ -135,7 +135,7 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
                                     </div>
                                     <div className="flex gap-2">
                                         <Button size="sm" variant="flat" onPress={() => openEdit(item)}>
-                                            Editer
+                                            Éditer
                                         </Button>
                                         <Button size="sm" color="danger" variant="flat" onPress={() => handleDelete(item)}>
                                             Supprimer
@@ -152,9 +152,9 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
                 <ModalContent>
                     <ModalHeader>{editing ? 'Modifier le type' : 'Nouveau type'}</ModalHeader>
                     <ModalBody className="space-y-3">
-                        <Input label="Libelle" value={form.label} onValueChange={(value) => setForm({ ...form, label: value })} />
+                        <Input label="Libellé" value={form.label} onValueChange={(value) => setForm({ ...form, label: value })} />
                         <Input
-                            label="Duree (min)"
+                            label="Durée (min)"
                             type="number"
                             value={form.durationMinutes}
                             onValueChange={(value) => setForm({ ...form, durationMinutes: value })}
@@ -166,7 +166,7 @@ const AppointmentTypesIndex = ({ calendarId }: AppointmentTypesProps) => {
                             onValueChange={(value) => setForm({ ...form, bufferBeforeMinutes: value })}
                         />
                         <Input
-                            label="Buffer apres (min)"
+                            label="Buffer après (min)"
                             type="number"
                             value={form.bufferAfterMinutes}
                             onValueChange={(value) => setForm({ ...form, bufferAfterMinutes: value })}

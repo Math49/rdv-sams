@@ -179,10 +179,10 @@ const DoctorsIndex = () => {
                 if (form.password) {
                     await adminApi.resetDoctorPassword(id, { password: form.password });
                 }
-                success('Compte mis a jour');
+                success('Compte mis à jour');
             } else {
                 await adminApi.createDoctor({ ...payload, password: form.password });
-                success('Compte cree');
+                success('Compte créé');
             }
 
             closeModal();
@@ -210,7 +210,7 @@ const DoctorsIndex = () => {
         setDeleting(true);
         try {
             await adminApi.deleteDoctor(id);
-            success('Compte supprime');
+            success('Compte supprimé');
             setDeleteOpen(false);
             await loadDoctors();
         } finally {
@@ -223,8 +223,8 @@ const DoctorsIndex = () => {
             <Head title="Comptes" />
             <div className="space-y-6">
                 <PageHeader
-                    title="Comptes medecins"
-                    subtitle="Gerez les comptes des soignants."
+                    title="Comptes médecins"
+                    subtitle="Gérez les comptes des soignants."
                     backHref="/dashboard/admin"
                     actions={
                         <Button color="primary" onPress={openCreate}>
@@ -236,10 +236,10 @@ const DoctorsIndex = () => {
                 {loading ? (
                     <Spinner />
                 ) : (
-                    <Table aria-label="Comptes medecins">
+                    <Table aria-label="Comptes médecins">
                         <TableHeader>
-                            <TableColumn>Medecin</TableColumn>
-                            <TableColumn>Specialites</TableColumn>
+                            <TableColumn>Médecin</TableColumn>
+                            <TableColumn>Spécialités</TableColumn>
                             <TableColumn>Actions</TableColumn>
                         </TableHeader>
                         <TableBody emptyContent="Aucun compte">

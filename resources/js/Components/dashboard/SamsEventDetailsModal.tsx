@@ -14,13 +14,13 @@ export const SamsEventDetailsModal = ({ isOpen, event, onClose }: SamsEventDetai
     return (
         <Modal isOpen={isOpen} onClose={onClose} backdrop="blur" size="lg">
             <ModalContent>
-                <ModalHeader>Details evenement SAMS</ModalHeader>
+                <ModalHeader>Détails événement SAMS</ModalHeader>
                 <ModalBody className="space-y-4">
                     {!event ? (
-                        <p className="text-sm text-sams-muted">Aucun evenement selectionne.</p>
+                        <p className="text-sm text-sams-muted">Aucun événement sélectionné.</p>
                     ) : (
                         <>
-                            <SectionCard title="Evenement">
+                            <SectionCard title="Événement">
                                 <div className="space-y-1 text-sm">
                                     <p className="font-semibold">{event.title || 'SAMS'}</p>
                                     <p className="text-sams-muted">
@@ -29,7 +29,7 @@ export const SamsEventDetailsModal = ({ isOpen, event, onClose }: SamsEventDetai
                                 </div>
                             </SectionCard>
                             <SectionCard title="Localisation">
-                                <p className="text-sm text-sams-text/80">{event.location || 'Non renseignee'}</p>
+                                <p className="text-sm text-sams-text/80">{event.location || 'Non renseignée'}</p>
                             </SectionCard>
                             <SectionCard title="Description">
                                 <p className="text-sm text-sams-text/80">{event.description || 'Aucune description'}</p>

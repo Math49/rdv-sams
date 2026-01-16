@@ -21,7 +21,7 @@ export const CopyToClipboardButton = ({ value, label = 'Copier' }: CopyToClipboa
 
     return (
         <Button size="sm" variant="flat" onPress={handleCopy}>
-            {copied ? 'Copie' : label}
+            {copied ? 'Copié' : label}
         </Button>
     );
 };

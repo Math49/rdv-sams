@@ -11,7 +11,7 @@ type SlotListProps = {
 
 export const SlotList = ({ slots, selected, onSelect }: SlotListProps) => {
     if (slots.length === 0) {
-        return <p className="text-sm text-sams-muted">Aucun creneau disponible.</p>;
+        return <p className="text-sm text-sams-muted">Aucun créneau disponible.</p>;
     }
 
     return (

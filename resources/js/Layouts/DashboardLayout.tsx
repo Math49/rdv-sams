@@ -37,11 +37,11 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     footer={
                         <div className="space-y-3">
                             <div className="text-sm">
-                                <p className="text-sams-muted">Connecte</p>
-                                <p className="font-semibold text-sams-text">{user?.name || user?.identifier || 'Medecin'}</p>
+                                <p className="text-sams-muted">Connecté</p>
+                                <p className="font-semibold text-sams-text">{user?.name || user?.identifier || 'Médecin'}</p>
                             </div>
                             <Button variant="flat" size="sm" onPress={handleLogout}>
-                                Deconnexion
+                                Déconnexion
                             </Button>
                         </div>
                     }
@@ -55,7 +55,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                                 </Button>
                             </div>
                             <div className="text-sm text-sams-muted">
-                                {user ? `Connecte: ${user.name || user.identifier}` : 'Non connecte'}
+                                {user ? `Connecté: ${user.name || user.identifier}` : 'Non connecté'}
                             </div>
                         </div>
                     </header>

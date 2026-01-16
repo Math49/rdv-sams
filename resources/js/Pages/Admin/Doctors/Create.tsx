@@ -34,7 +34,7 @@ const DoctorsCreate = () => {
                 specialtyIds: specialties,
                 isActive,
             });
-            success('Compte cree');
+            success('Compte créé');
             router.visit('/dashboard/admin/comptes');
         } finally {
             setLoading(false);
@@ -43,11 +43,11 @@ const DoctorsCreate = () => {
 
     return (
         <AdminLayout>
-            <Head title="Creer un compte" />
+            <Head title="Créer un compte" />
             <div className="space-y-6">
                 <PageHeader
-                    title="Creer un compte"
-                    subtitle="Ajoutez un nouveau compte medecin."
+                    title="Créer un compte"
+                    subtitle="Ajoutez un nouveau compte médecin."
                     backHref="/dashboard/admin/comptes"
                 />
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -55,7 +55,7 @@ const DoctorsCreate = () => {
                     <Input label="Nom" value={name} onValueChange={setName} />
                     <Input label="Mot de passe" type="password" value={password} onValueChange={setPassword} isRequired />
                     <Select
-                        label="Roles"
+                        label="Rôles"
                         selectionMode="multiple"
                         selectedKeys={new Set(roles)}
                         onSelectionChange={(keys) => {
@@ -67,14 +67,14 @@ const DoctorsCreate = () => {
                         }}
                     >
                         <SelectItem key="doctor">
-                            doctor
+                            Médecin
                         </SelectItem>
                         <SelectItem key="admin">
-                            admin
+                            Administrateur
                         </SelectItem>
                     </Select>
                     <Input
-                        label="Specialty IDs (separes par virgule)"
+                        label="Spécialités (séparées par virgule)"
                         value={specialtyIds}
                         onValueChange={setSpecialtyIds}
                         placeholder="5f... , 6a..."
@@ -83,7 +83,7 @@ const DoctorsCreate = () => {
                         Actif
                     </Switch>
                     <Button color="primary" type="submit" isLoading={loading}>
-                        Creer
+                        Créer
                     </Button>
                 </form>
             </div>

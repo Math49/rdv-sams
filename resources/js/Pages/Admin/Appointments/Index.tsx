@@ -64,7 +64,7 @@ const AdminAppointmentsIndex = () => {
                             onValueChange={(to) => setFilters({ ...filters, to })}
                         />
                         <Select
-                            label="Medecin"
+                            label="Médecin"
                             selectedKeys={filters.doctorId ? new Set([filters.doctorId]) : new Set()}
                             onSelectionChange={(keys) => {
                                 if (keys === 'all') {

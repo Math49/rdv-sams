@@ -72,7 +72,7 @@ const AppointmentHome = () => {
                 <Card className="border border-sams-border bg-sams-surface">
                     <CardBody className="space-y-3">
                         <p className="text-sm text-sams-muted">
-                            Le token patient est manquant ou expire. Veuillez revenir a la page d acces.
+                            Le token patient est manquant ou expiré. Veuillez revenir à la page d'accès.
                         </p>
                         <Button color="primary" onPress={() => router.visit('/')}>
                             Retour
@@ -102,10 +102,10 @@ const AppointmentHome = () => {
                     <Card className="border border-sams-border bg-sams-surface">
                         <CardBody className="space-y-2">
                             <h2 className="text-xl font-semibold">
-                                {doctor?.name || doctor?.identifier || 'Medecin'}
+                                {doctor?.name || doctor?.identifier || 'Médecin'}
                             </h2>
                             <p className="text-sm text-sams-muted">
-                                Choisissez un type de rendez-vous pour afficher les creneaux.
+                                Choisissez un type de rendez-vous pour afficher les créneaux.
                             </p>
                         </CardBody>
                     </Card>
@@ -113,8 +113,8 @@ const AppointmentHome = () => {
                     <div className="grid gap-4 md:grid-cols-2">
                         {vmCalendar ? (
                             <AppointmentTypeCard
-                                title="Visite Medicale"
-                                description={vmCalendar.label || 'Calendrier medecin'}
+                                title="Visite médicale"
+                                description={vmCalendar.label || 'Calendrier médecin'}
                                 actionLabel="Choisir"
                                 onSelect={() => handleSelect(vmCalendar._id || vmCalendar.id || '')}
                             />
@@ -122,8 +122,8 @@ const AppointmentHome = () => {
                         {specialtyCalendars.map((calendar) => (
                             <AppointmentTypeCard
                                 key={calendar._id || calendar.id}
-                                title={calendar.label || 'Specialite'}
-                                description="Consultation specialisee"
+                                title={calendar.label || 'Spécialité'}
+                                description="Consultation spécialisée"
                                 actionLabel="Choisir"
                                 onSelect={() => handleSelect(calendar._id || calendar.id || '')}
                             />

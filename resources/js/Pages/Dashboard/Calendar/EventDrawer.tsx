@@ -29,7 +29,7 @@ export const EventDrawer = ({
             <Drawer isOpen={isOpen} onClose={onClose} placement="right">
                 <DrawerContent>
                     <DrawerHeader>Rendez-vous</DrawerHeader>
-                    <DrawerBody>Aucun rendez-vous selectionne.</DrawerBody>
+                    <DrawerBody>Aucun rendez-vous sélectionné.</DrawerBody>
                 </DrawerContent>
             </Drawer>
         );
@@ -87,7 +87,7 @@ export const EventDrawer = ({
                     <SectionCard title="Actions">
                         <div className="flex flex-wrap gap-2">
                             <Button variant="flat" onPress={onTransfer}>
-                                Transferer
+                                Transférer
                             </Button>
                             <Button color="danger" onPress={onCancel}>
                                 Annuler

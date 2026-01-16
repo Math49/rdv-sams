@@ -7,11 +7,17 @@ use App\Http\Requests\Admin\ResetDoctorPasswordRequest;
 use App\Http\Requests\Admin\StoreDoctorRequest;
 use App\Http\Requests\Admin\UpdateDoctorRequest;
 use App\Models\User;
+use App\Services\CalendarDeletionService;
+use App\Services\DoctorCalendarSyncService;
 use Illuminate\Http\JsonResponse;
 use MongoDB\BSON\ObjectId;
 
 class DoctorManagementController extends Controller
 {
+    public function __construct(
+        private DoctorCalendarSyncService $calendarSyncService,
+        private CalendarDeletionService $calendarDeletionService
+    ) {}
     /**
      * Display a listing of the resource.
      */
@@ -36,6 +42,10 @@ class DoctorManagementController extends Controller
             'specialtyIds' => $data['specialtyIds'] ?? [],
             'isActive' => $data['isActive'] ?? true,
         ]);
+
+        // Create calendars for the new doctor
+        $specialtyIds = $data['specialtyIds'] ?? [];
+        $this->calendarSyncService->createForNewDoctor((string) $doctor->getKey(), $specialtyIds);
 
         return response()->json([
             'message' => 'Doctor created',
@@ -63,8 +73,23 @@ class DoctorManagementController extends Controller
             return response()->json(['message' => 'Doctor not found'], 404);
         }
 
-        $doctor->fill($request->validated());
+        $validatedData = $request->validated();
+        
+        // Get old specialty IDs before update
+        $oldSpecialtyIds = $doctor->specialtyIds ?? [];
+
+        $doctor->fill($validatedData);
         $doctor->save();
+
+        // Sync calendars if specialtyIds changed
+        if (array_key_exists('specialtyIds', $validatedData)) {
+            $newSpecialtyIds = $validatedData['specialtyIds'] ?? [];
+            $this->calendarSyncService->sync(
+                (string) $doctor->getKey(),
+                $newSpecialtyIds,
+                $oldSpecialtyIds
+            );
+        }
 
         return response()->json([
             'message' => 'Doctor updated',
@@ -95,6 +120,10 @@ class DoctorManagementController extends Controller
             return response()->json(['message' => 'Doctor not found'], 404);
         }
 
+        // Delete all calendars and related data for this doctor
+        $this->calendarDeletionService->deleteDoctorCalendarsCascade($doctorId);
+
+        // Delete the doctor user
         $doctor->delete();
 
         return response()->json([

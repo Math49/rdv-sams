@@ -12,8 +12,8 @@ export const VmCard = ({ calendar, onSelect }: VmCardProps) => {
         <Card className="border border-sams-border bg-gradient-to-br from-sams-surface to-sams-surface2">
             <CardBody className="flex flex-col gap-3">
                 <div>
-                    <p className="text-sm text-sams-muted">Visite medicale</p>
-                    <h3 className="text-lg font-semibold">{calendar.label || 'Calendrier medecin'}</h3>
+                    <p className="text-sm text-sams-muted">Visite médicale</p>
+                    <h3 className="text-lg font-semibold">{calendar.label || 'Calendrier médecin'}</h3>
                 </div>
                 <Button color="primary" onPress={onSelect}>
                     Prendre rendez-vous

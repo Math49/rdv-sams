@@ -25,13 +25,13 @@ export const PatientForm = ({ value, onChange }: PatientFormProps) => {
                 isRequired
             />
             <Input
-                label="Prenom"
+                label="Prénom"
                 value={value.firstname}
                 onValueChange={(firstname) => onChange({ ...value, firstname })}
                 isRequired
             />
             <Input
-                label="Telephone"
+                label="Téléphone"
                 value={value.phone}
                 onValueChange={(phone) => onChange({ ...value, phone: formatPhone(phone) })}
                 placeholder="(000) 000-0000"

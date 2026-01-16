@@ -96,10 +96,10 @@ const Rules = ({ calendarId }: RulesProps) => {
 
         if (editing) {
             await api.patch(`/api/availability-rules/${editing._id || editing.id}`, payload);
-            success('Regle mise a jour');
+            success('Règle mise à jour');
         } else {
             await api.post(`/api/calendars/${calendarId}/availability-rules`, payload);
-            success('Regle creee');
+            success('Règle créée');
         }
 
         setModalOpen(false);
@@ -108,21 +108,21 @@ const Rules = ({ calendarId }: RulesProps) => {
 
     const handleDelete = async (rule: AvailabilityRule) => {
         await api.delete(`/api/availability-rules/${rule._id || rule.id}`);
-        success('Regle supprimee');
+        success('Règle supprimée');
         await load();
     };
 
     return (
         <DashboardLayout>
-            <Head title="Regles disponibilite" />
+            <Head title="Règles disponibilité" />
             <div className="space-y-6">
                 <PageHeader
-                    title="Regles de disponibilite"
-                    subtitle="Definissez les creneaux reguliers de vos calendriers."
+                    title="Règles de disponibilité"
+                    subtitle="Éfinissez les créneaux réguliers de vos calendriers."
                     backHref={`/dashboard/config/${calendarId}`}
                     actions={
                         <Button color="primary" onPress={openCreate}>
-                            Nouvelle regle
+                            Nouvelle règle
                         </Button>
                     }
                 />
@@ -130,7 +130,7 @@ const Rules = ({ calendarId }: RulesProps) => {
                 {loading ? (
                     <Spinner />
                 ) : (
-                    <SectionCard title="Regles">
+                    <SectionCard title="Règles">
                         <div className="space-y-3">
                             {rules.map((rule) => (
                                 <div
@@ -144,7 +144,7 @@ const Rules = ({ calendarId }: RulesProps) => {
                                     </div>
                                     <div className="flex gap-2">
                                         <Button size="sm" variant="flat" onPress={() => openEdit(rule)}>
-                                            Editer
+                                            Éditer
                                         </Button>
                                         <Button size="sm" color="danger" variant="flat" onPress={() => handleDelete(rule)}>
                                             Supprimer
@@ -159,7 +159,7 @@ const Rules = ({ calendarId }: RulesProps) => {
 
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} backdrop="blur">
                 <ModalContent>
-                    <ModalHeader>{editing ? 'Modifier la regle' : 'Nouvelle regle'}</ModalHeader>
+                    <ModalHeader>{editing ? 'Modifier la règle' : 'Nouvelle règle'}</ModalHeader>
                     <ModalBody className="space-y-3">
                         <Select
                             label="Jour"
@@ -179,7 +179,7 @@ const Rules = ({ calendarId }: RulesProps) => {
                                 </SelectItem>
                             ))}
                         </Select>
-                        <Input label="Debut" type="time" value={form.startTime} onValueChange={(value) => setForm({ ...form, startTime: value })} />
+                        <Input label="Début" type="time" value={form.startTime} onValueChange={(value) => setForm({ ...form, startTime: value })} />
                         <Input label="Fin" type="time" value={form.endTime} onValueChange={(value) => setForm({ ...form, endTime: value })} />
                         <Input
                             label="Valide du"

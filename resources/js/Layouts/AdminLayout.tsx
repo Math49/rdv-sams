@@ -42,11 +42,11 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                                 Retour panel
                             </Button>
                             <div className="text-sm">
-                                <p className="text-sams-muted">Connecte</p>
+                                <p className="text-sams-muted">Connecté</p>
                                 <p className="font-semibold text-sams-text">{user?.name || user?.identifier || 'Admin'}</p>
                             </div>
                             <Button variant="flat" size="sm" onPress={handleLogout}>
-                                Deconnexion
+                                Déconnexion
                             </Button>
                         </div>
                     }
@@ -60,7 +60,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                                 </Button>
                             </div>
                             <div className="text-sm text-sams-muted">
-                                {isAdmin && user ? `Admin: ${user.name || user.identifier}` : 'Acces restreint'}
+                                {isAdmin && user ? `Admin: ${user.name || user.identifier}` : 'Accès restreint'}
                             </div>
                         </div>
                     </header>

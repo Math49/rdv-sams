@@ -61,7 +61,7 @@ const DoctorsEdit = ({ id }: DoctorsEditProps) => {
                 specialtyIds: specialties,
                 isActive,
             });
-            success('Compte mis a jour');
+            success('Compte mis à jour');
             router.visit('/dashboard/admin/comptes');
         } finally {
             setSaving(false);
@@ -73,7 +73,7 @@ const DoctorsEdit = ({ id }: DoctorsEditProps) => {
         setResetting(true);
         try {
             await api.post(`/api/admin/doctors/${id}/reset-password`, { password });
-            success('Mot de passe reinitialise');
+            success('Mot de passe réinitialisé');
             setPassword('');
         } finally {
             setResetting(false);
@@ -101,7 +101,7 @@ const DoctorsEdit = ({ id }: DoctorsEditProps) => {
                     <Input label="Identifiant" value={identifier} onValueChange={setIdentifier} isRequired />
                     <Input label="Nom" value={name} onValueChange={setName} />
                     <Select
-                        label="Roles"
+                        label="Rôles"
                         selectionMode="multiple"
                         selectedKeys={new Set(roles)}
                         onSelectionChange={(keys) => {
@@ -113,14 +113,14 @@ const DoctorsEdit = ({ id }: DoctorsEditProps) => {
                         }}
                     >
                         <SelectItem key="doctor">
-                            doctor
+                            Médecin
                         </SelectItem>
                         <SelectItem key="admin">
-                            admin
+                            Administrateur
                         </SelectItem>
                     </Select>
                     <Input
-                        label="Specialty IDs (separes par virgule)"
+                        label="Spécialités (séparées par virgule)"
                         value={specialtyIds}
                         onValueChange={setSpecialtyIds}
                     />
@@ -133,7 +133,7 @@ const DoctorsEdit = ({ id }: DoctorsEditProps) => {
                 </form>
 
                 <div className="rounded-large border border-sams-border bg-sams-surface/70 p-4">
-                    <p className="text-sm font-semibold">Reinitialiser le mot de passe</p>
+                    <p className="text-sm font-semibold">Réinitialiser le mot de passe</p>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                         <Input
                             label="Nouveau mot de passe"
@@ -142,7 +142,7 @@ const DoctorsEdit = ({ id }: DoctorsEditProps) => {
                             onValueChange={setPassword}
                         />
                         <Button color="danger" isLoading={resetting} onPress={handleResetPassword}>
-                            Reinitialiser
+                            Réinitialiser
                         </Button>
                     </div>
                 </div>

@@ -46,7 +46,7 @@ const CalendarShow = ({ calendarId }: CalendarShowProps) => {
         setSaving(true);
         try {
             await calendarApi.updateMessage(calendarId, { message, color });
-            success('Configuration mise a jour');
+            success('Configuration mise à jour');
         } finally {
             setSaving(false);
         }
@@ -58,7 +58,7 @@ const CalendarShow = ({ calendarId }: CalendarShowProps) => {
             <div className="space-y-6">
                 <PageHeader
                     title="Configuration du calendrier"
-                    subtitle="Gerez les parametres de ce calendrier."
+                    subtitle="Gérez les paramètres de ce calendrier."
                     backHref="/dashboard"
                 />
 
@@ -83,12 +83,12 @@ const CalendarShow = ({ calendarId }: CalendarShowProps) => {
                         </Card>
 
                         <SectionCard
-                            title="Disponibilites"
-                            description="Definissez les heures disponibles et les exceptions."
+                            title="Disponibilités"
+                            description="Définissez les heures disponibles et les exceptions."
                             actions={
                                 <div className="flex gap-2">
                                     <Button as={Link} href={`/dashboard/config/${calendarId}/rules`} variant="flat" size="sm">
-                                        Regles
+                                        Règles
                                     </Button>
                                     <Button
                                         as={Link}
@@ -102,14 +102,14 @@ const CalendarShow = ({ calendarId }: CalendarShowProps) => {
                             }
                         >
                             <p className="text-sm text-sams-muted">
-                                Utilisez les regles pour definir les horaires de base et ajoutez des exceptions pour
-                                ajuster un jour precis.
+                                Utilisez les règles pour définir les horaires de base et ajoutez des exceptions pour
+                                ajuster un jour précis.
                             </p>
                         </SectionCard>
 
                         <SectionCard
                             title="Types de rendez-vous"
-                            description="Duree, buffers et libelles."
+                            description="Durée, buffers et libellés."
                             actions={
                                 <Button
                                     as={Link}
@@ -117,12 +117,12 @@ const CalendarShow = ({ calendarId }: CalendarShowProps) => {
                                     variant="flat"
                                     size="sm"
                                 >
-                                    Gerer
+                                    Gérer
                                 </Button>
                             }
                         >
                             <p className="text-sm text-sams-muted">
-                                Configurez la duree et les buffers avant/apres pour les rendez-vous.
+                                Configurez la durée et les buffers avant/après pour les rendez-vous.
                             </p>
                         </SectionCard>
 
@@ -146,14 +146,14 @@ const CalendarShow = ({ calendarId }: CalendarShowProps) => {
 
                         <SectionCard
                             title="Message patient"
-                            description="Message envoye lors de la generation du token."
+                            description="Message envoyé lors de la génération du token."
                         >
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <Textarea
                                     label="Message template"
                                     value={message}
                                     onValueChange={setMessage}
-                                    description="Utilisez {{TOKEN}} pour inserer le token."
+                                    description="Utilisez {{TOKEN}} pour insérer le token."
                                 />
                                 <Button color="primary" type="submit" isLoading={saving}>
                                     Enregistrer

@@ -9,8 +9,8 @@ type CalendarCardProps = {
 };
 
 const getScopeLabel = (scope: Calendar['scope']) => {
-    if (scope === 'doctor') return 'Visite medicale';
-    if (scope === 'specialty') return 'Specialite';
+    if (scope === 'doctor') return 'Personnel';
+    if (scope === 'specialty') return 'Spécialité';
     return 'SAMS';
 };
 

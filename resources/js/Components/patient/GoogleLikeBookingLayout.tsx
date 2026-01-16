@@ -31,7 +31,7 @@ export const GoogleLikeBookingLayout = ({
                     <MiniMonthCalendar selectedDate={selectedDate} onSelect={onSelectDate} />
                     <div className="space-y-4">
                         <div className="flex items-center justify-between text-sm text-sams-muted">
-                            <p>Selectionner une heure de rendez-vous</p>
+                            <p>Sélectionner une heure de rendez-vous</p>
                             <p>Heure locale</p>
                         </div>
                         <SlotsGrid

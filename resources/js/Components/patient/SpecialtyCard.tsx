@@ -12,11 +12,11 @@ export const SpecialtyCard = ({ calendar, onSelect }: SpecialtyCardProps) => {
         <Card className="border border-sams-border bg-sams-surface/70">
             <CardBody className="flex flex-col gap-3">
                 <div>
-                    <p className="text-sm text-sams-muted">Specialite</p>
-                    <h3 className="text-lg font-semibold">{calendar.label || 'Calendrier specialite'}</h3>
+                    <p className="text-sm text-sams-muted">Spécialité</p>
+                    <h3 className="text-lg font-semibold">{calendar.label || 'Calendrier spécialité'}</h3>
                 </div>
                 <Button variant="flat" onPress={onSelect}>
-                    Voir les creneaux
+                    Voir les créneaux
                 </Button>
             </CardBody>
         </Card>

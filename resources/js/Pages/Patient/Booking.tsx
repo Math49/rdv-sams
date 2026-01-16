@@ -184,12 +184,12 @@ const Booking = ({ calendarId }: BookingProps) => {
                     company: patient.company || undefined,
                 },
             });
-            success('RDV pris avec succes');
+            success('RDV pris avec succès');
             clearPatientContext();
             setModalOpen(false);
             setTimeout(() => router.visit('/'), 1000);
         } catch {
-            error('Impossible de reserver ce creneau');
+            error('Impossible de réserver ce créneau');
         } finally {
             setSubmitting(false);
         }
@@ -213,7 +213,7 @@ const Booking = ({ calendarId }: BookingProps) => {
                 <Card className="border border-sams-border bg-sams-surface/70">
                     <CardBody className="space-y-3">
                         <p className="text-sm text-sams-muted">
-                            Le token patient est manquant ou expire. Veuillez revenir a la page d acces.
+                            Le token patient est manquant ou expiré. Veuillez revenir à la page d'accès.
                         </p>
                         <Button color="primary" onPress={() => router.visit('/')}>
                             Retour
@@ -273,10 +273,10 @@ const Booking = ({ calendarId }: BookingProps) => {
                             <p className="text-sm text-sams-muted">{viewTitle || 'Calendrier'}</p>
                             <div className="flex flex-wrap items-center gap-2">
                                 <Button size="sm" variant="flat" onPress={() => handleNavigate('today')}>
-                                    Aujourd hui
+                                    Aujourd'hui
                                 </Button>
                                 <Button size="sm" variant="flat" onPress={() => handleNavigate('prev')}>
-                                    Prec
+                                    Préc
                                 </Button>
                                 <Button size="sm" variant="flat" onPress={() => handleNavigate('next')}>
                                     Suiv
@@ -330,7 +330,7 @@ const Booking = ({ calendarId }: BookingProps) => {
                     <ModalBody className="space-y-4">
                         {selectedSlot ? (
                             <div className="rounded-large border border-sams-border bg-sams-surface/70 px-4 py-3 text-sm">
-                                Creneau selectionne: {formatDateTimeFR(selectedSlot.startAt)} -{' '}
+                                Créneau sélectionné: {formatDateTimeFR(selectedSlot.startAt)} -{' '}
                                 {formatDateTimeFR(selectedSlot.endAt)}
                             </div>
                         ) : null}

@@ -84,6 +84,7 @@ export const patientApi = {
 
 export const calendarApi = {
     list: () => api.get('/api/calendars'),
+    listMine: () => api.get('/api/me/calendars'),
     updateMessage: (calendarId: string, payload: { message: string; color?: string }) =>
         api.patch(`/api/calendars/${calendarId}/message`, payload),
     appointmentTypes: (calendarId: string) => api.get(`/api/calendars/${calendarId}/appointment-types`),

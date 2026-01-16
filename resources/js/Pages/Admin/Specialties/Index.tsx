@@ -91,14 +91,14 @@ const SpecialtiesIndex = () => {
                     color: form.color,
                     isActive: form.isActive,
                 });
-                success('Specialite mise a jour');
+                success('Specialité mise à jour');
             } else {
                 await adminApi.createSpecialty({
                     label: form.label,
                     color: form.color,
                     isActive: form.isActive,
                 });
-                success('Specialite creee');
+                success('Specialité créée');
             }
             closeModal();
             await loadSpecialties();
@@ -118,7 +118,7 @@ const SpecialtiesIndex = () => {
         setDeleting(true);
         try {
             await adminApi.deleteSpecialty(id);
-            success('Specialite supprimee');
+            success('Specialité supprimée');
             setDeleteOpen(false);
             await loadSpecialties();
         } finally {
@@ -140,15 +140,15 @@ const SpecialtiesIndex = () => {
 
     return (
         <AdminLayout>
-            <Head title="Specialites" />
+            <Head title="Spécialités" />
             <div className="space-y-6">
                 <PageHeader
-                    title="Specialites"
-                    subtitle="Gerez la liste des specialites."
+                    title="Spécialités"
+                    subtitle="Gérez la liste des spécialités."
                     backHref="/dashboard/admin"
                     actions={
                         <Button color="primary" onPress={openCreate}>
-                            Nouvelle specialite
+                            Nouvelle spécialité
                         </Button>
                     }
                 />
@@ -156,13 +156,13 @@ const SpecialtiesIndex = () => {
                 {loading ? (
                     <Spinner />
                 ) : (
-                    <Table aria-label="Specialites">
+                    <Table aria-label="Spécialités">
                         <TableHeader>
-                            <TableColumn>Specialite</TableColumn>
-                            <TableColumn>Active</TableColumn>
+                            <TableColumn>Spécialité</TableColumn>
+                            <TableColumn>Activé</TableColumn>
                             <TableColumn>Actions</TableColumn>
                         </TableHeader>
-                        <TableBody emptyContent="Aucune specialite">
+                        <TableBody emptyContent="Aucune spécialité">
                             {specialties.map((specialty) => {
                                 const id = specialty._id || specialty.id || '';
                                 return (
@@ -219,8 +219,8 @@ const SpecialtiesIndex = () => {
 
             <ConfirmDialog
                 isOpen={deleteOpen}
-                title="Supprimer la specialite"
-                description="Confirmez la suppression de la specialite selectionnee."
+                title="Supprimer la spécialité"
+                description="Confirmez la suppression de la spécialité sélectionnée."
                 confirmLabel="Supprimer"
                 confirmColor="danger"
                 isLoading={deleting}

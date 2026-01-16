@@ -43,7 +43,7 @@ export const GenerateTokenModal = ({ isOpen, calendars, onClose }: GenerateToken
     return (
         <Modal isOpen={isOpen} onClose={handleClose} backdrop="blur" size="lg">
             <ModalContent>
-                <ModalHeader>Generer un token patient</ModalHeader>
+                <ModalHeader>Générer un token patient</ModalHeader>
                 <ModalBody className="space-y-4">
                     <Select
                         label="Calendrier"
@@ -61,7 +61,7 @@ export const GenerateTokenModal = ({ isOpen, calendars, onClose }: GenerateToken
                         {calendars.map((calendar) => {
                             const id = calendar._id || calendar.id || '';
                             const fallback =
-                                calendar.scope === 'doctor' ? 'Visite medicale' : calendar.scope === 'specialty' ? 'Specialite' : 'SAMS';
+                                calendar.scope === 'doctor' ? 'Personnel' : calendar.scope === 'specialty' ? 'Spécialité' : 'SAMS';
                             return (
                                 <SelectItem key={id}>
                                     {calendar.label || fallback}
@@ -93,7 +93,7 @@ export const GenerateTokenModal = ({ isOpen, calendars, onClose }: GenerateToken
                         Fermer
                     </Button>
                     <Button color="primary" onPress={handleGenerate} isLoading={loading} isDisabled={!calendarId}>
-                        Generer
+                        Générer
                     </Button>
                 </ModalFooter>
             </ModalContent>

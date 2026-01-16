@@ -210,10 +210,10 @@ const SamsIndex = () => {
             if (editing) {
                 const id = editing._id || editing.id || '';
                 await adminApi.updateSamsEvent(id, payload);
-                success('Evenement mis a jour');
+                success('Événement mis à jour');
             } else {
                 await adminApi.createSamsEvent(payload);
-                success('Evenement cree');
+                success('Événement créé');
             }
 
             closeModal();
@@ -234,7 +234,7 @@ const SamsIndex = () => {
         setDeleting(true);
         try {
             await adminApi.deleteSamsEvent(id);
-            success('Evenement supprime');
+            success('Événement supprimé');
             setDeleteOpen(false);
             await loadEvents(viewRange);
         } finally {
@@ -248,11 +248,11 @@ const SamsIndex = () => {
             <div className="space-y-6">
                 <PageHeader
                     title="Calendrier SAMS"
-                    subtitle="Gerez les evenements SAMS."
+                    subtitle="Gérez les événements SAMS."
                     backHref="/dashboard/admin"
                     actions={
                         <Button color="primary" onPress={openCreate}>
-                            Nouvel evenement
+                            Nouvel événement
                         </Button>
                     }
                 />
@@ -263,10 +263,10 @@ const SamsIndex = () => {
                             <p className="text-sm text-sams-muted">{viewTitle || 'Calendrier'}</p>
                             <div className="flex flex-wrap items-center gap-2">
                                 <Button size="sm" variant="flat" onPress={() => handleNavigate('today')}>
-                                    Aujourd hui
+                                    Aujourd'hui
                                 </Button>
                                 <Button size="sm" variant="flat" onPress={() => handleNavigate('prev')}>
-                                    Prec
+                                    Préc
                                 </Button>
                                 <Button size="sm" variant="flat" onPress={() => handleNavigate('next')}>
                                     Suiv
@@ -329,8 +329,8 @@ const SamsIndex = () => {
 
             <ConfirmDialog
                 isOpen={deleteOpen}
-                title="Supprimer l evenement"
-                description="Confirmez la suppression de l evenement selectionne."
+                title="Supprimer l'événement"
+                description="Confirmez la suppression de l'événement sélectionné."
                 confirmLabel="Supprimer"
                 confirmColor="danger"
                 isLoading={deleting}

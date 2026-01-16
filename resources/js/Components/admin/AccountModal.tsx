@@ -85,7 +85,7 @@ export const AccountModal = ({
                 <ModalBody className="space-y-3">
                     <div className="grid gap-3 sm:grid-cols-2">
                         <Input
-                            label="Prenom"
+                            label="Prénom"
                             value={form.firstName}
                             onValueChange={(value) => onChange({ ...form, firstName: value })}
                         />
@@ -115,7 +115,7 @@ export const AccountModal = ({
                         errorMessage={passwordError}
                     />
                     <Select
-                        label="Specialites"
+                        label="Spécialités"
                         selectionMode="multiple"
                         selectedKeys={new Set(selectedSpecialtyKeys)}
                         onSelectionChange={handleSpecialtiesChange}
@@ -131,11 +131,11 @@ export const AccountModal = ({
                     </Select>
                     {specialties.length === 0 ? (
                         <p className="text-xs text-sams-muted">
-                            Aucune specialite chargee. Ajoutez des specialites dans le module admin.
+                            Aucune spécialité chargée. Ajoutez des spécialités dans le module admin.
                         </p>
                     ) : null}
                     <Select
-                        label="Roles"
+                        label="Rôles"
                         selectionMode="multiple"
                         selectedKeys={new Set(form.roles)}
                         onSelectionChange={handleRolesChange}
@@ -143,10 +143,10 @@ export const AccountModal = ({
                         errorMessage={rolesError}
                     >
                         <SelectItem key="doctor">
-                            doctor
+                            Docteur
                         </SelectItem>
                         <SelectItem key="admin">
-                            admin
+                            Administrateur
                         </SelectItem>
                     </Select>
                     <Switch isSelected={form.isActive} onValueChange={(value) => onChange({ ...form, isActive: value })}>

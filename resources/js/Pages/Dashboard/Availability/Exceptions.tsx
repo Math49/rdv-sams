@@ -89,10 +89,10 @@ const Exceptions = ({ calendarId }: ExceptionsProps) => {
 
         if (editing) {
             await api.patch(`/api/availability-exceptions/${editing._id || editing.id}`, payload);
-            success('Exception mise a jour');
+            success('Exception mise à jour');
         } else {
             await api.post(`/api/calendars/${calendarId}/availability-exceptions`, payload);
-            success('Exception creee');
+            success('Exception créée');
         }
 
         setModalOpen(false);
@@ -101,17 +101,17 @@ const Exceptions = ({ calendarId }: ExceptionsProps) => {
 
     const handleDelete = async (item: AvailabilityException) => {
         await api.delete(`/api/availability-exceptions/${item._id || item.id}`);
-        success('Exception supprimee');
+        success('Exception supprimée');
         await load();
     };
 
     return (
         <DashboardLayout>
-            <Head title="Exceptions disponibilite" />
+            <Head title="Exceptions disponibilité" />
             <div className="space-y-6">
                 <PageHeader
-                    title="Exceptions de disponibilite"
-                    subtitle="Ajoutez des indisponibilites ou des creneaux ponctuels."
+                    title="Exceptions de disponibilité"
+                    subtitle="Ajoutez des indisponibilités ou des créneaux ponctuels."
                     backHref={`/dashboard/config/${calendarId}`}
                     actions={
                         <Button color="primary" onPress={openCreate}>
@@ -173,11 +173,11 @@ const Exceptions = ({ calendarId }: ExceptionsProps) => {
                                 Indisponible
                             </SelectItem>
                             <SelectItem key="add">
-                                Creneau ajoute
+                                Créneau ajouté
                             </SelectItem>
                         </Select>
                         <Input
-                            label="Debut"
+                            label="Début"
                             type="time"
                             value={form.startTime}
                             onValueChange={(value) => setForm({ ...form, startTime: value })}

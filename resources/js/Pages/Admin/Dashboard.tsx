@@ -15,7 +15,7 @@ const AdminDashboard = () => {
                         <CardBody className="space-y-3">
                             <h3 className="text-lg font-semibold">Comptes</h3>
                             <Button as={Link} href="/dashboard/admin/comptes" color="primary">
-                                Gerer
+                                Gérer
                             </Button>
                         </CardBody>
                     </Card>
@@ -23,15 +23,15 @@ const AdminDashboard = () => {
                         <CardBody className="space-y-3">
                             <h3 className="text-lg font-semibold">Calendrier SAMS</h3>
                             <Button as={Link} href="/dashboard/admin/calendrier-sams" color="primary">
-                                Gerer
+                                Gérer
                             </Button>
                         </CardBody>
                     </Card>
                     <Card className="border border-sams-border bg-sams-surface">
                         <CardBody className="space-y-3">
-                            <h3 className="text-lg font-semibold">Specialites</h3>
+                            <h3 className="text-lg font-semibold">Spécialités</h3>
                             <Button as={Link} href="/dashboard/admin/specialites" color="primary">
-                                Gerer
+                                Gérer
                             </Button>
                         </CardBody>
                     </Card>

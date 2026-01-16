@@ -147,7 +147,7 @@ const AppointmentCalendar = ({ calendarId }: AppointmentCalendarProps) => {
                 <Card className="border border-sams-border bg-sams-surface">
                     <CardBody className="space-y-3">
                         <p className="text-sm text-sams-muted">
-                            Le token patient est manquant ou expire. Veuillez revenir a la page d acces.
+                            Le token patient est manquant ou expiré. Veuillez revenir à la page d'accès.
                         </p>
                         <Button color="primary" onPress={() => router.visit('/')}>
                             Retour
@@ -186,7 +186,7 @@ const AppointmentCalendar = ({ calendarId }: AppointmentCalendarProps) => {
             setModalOpen(false);
             setTimeout(() => router.visit('/'), 1000);
         } catch {
-            error('Impossible de reserver ce creneau');
+            error('Impossible de réserver ce créneau');
         } finally {
             setSubmitting(false);
         }
@@ -202,7 +202,7 @@ const AppointmentCalendar = ({ calendarId }: AppointmentCalendarProps) => {
                         <p className="text-sm text-sams-muted">Prise de rendez-vous</p>
                     </div>
                     <h1 className="mt-2 text-2xl font-semibold text-sams-text">
-                        {doctor?.name || doctor?.identifier || 'Medecin'}
+                        {doctor?.name || doctor?.identifier || 'Médecin'}
                     </h1>
                 </div>
 
@@ -216,7 +216,7 @@ const AppointmentCalendar = ({ calendarId }: AppointmentCalendarProps) => {
                             </p>
                             <p className="text-sm text-sams-text/80">Lieu: Ocean Medical Center</p>
                             <p className="text-sm text-sams-muted">
-                                Selectionnez une heure disponible pour finaliser votre RDV.
+                                Sélectionnez une heure disponible pour finaliser votre RDV.
                             </p>
                         </div>
                         <div className="space-y-3">

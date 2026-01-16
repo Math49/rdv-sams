@@ -43,7 +43,7 @@ export const SamsEventModal = ({
     return (
         <Modal isOpen={isOpen} onClose={onClose} backdrop="blur" size="lg">
             <ModalContent>
-                <ModalHeader>{editing ? 'Modifier un evenement' : 'Nouvel evenement'}</ModalHeader>
+                <ModalHeader>{editing ? 'Modifier un événement' : 'Nouvel événement'}</ModalHeader>
                 <ModalBody className="space-y-3">
                     <Input
                         label="Titre"
@@ -52,7 +52,7 @@ export const SamsEventModal = ({
                         isRequired
                     />
                     <Input
-                        label="Debut"
+                        label="Début"
                         type="datetime-local"
                         value={form.startAt}
                         onValueChange={(value) => onChange({ ...form, startAt: value })}

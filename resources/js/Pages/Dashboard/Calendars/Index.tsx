@@ -17,7 +17,7 @@ import { ConfirmDialog } from '@/Components/ui/ConfirmDialog';
 import { PageHeader } from '@/Components/ui/PageHeader';
 import { DashboardLayout } from '@/Layouts/DashboardLayout';
 import { useIsAdmin } from '@/hooks/useAuth';
-import { adminApi, api, getAvailabilityFeed } from '@/lib/api';
+import { adminApi, api, calendarApi, getAvailabilityFeed } from '@/lib/api';
 import { formatDateTimeFR, PARIS_TZ, toIsoParis } from '@/lib/date';
 import type { ApiResponse, Appointment, AvailabilitySlot, Calendar, Doctor, SamsEvent, Specialty } from '@/lib/types';
 
@@ -87,9 +87,12 @@ const CalendarsIndex = () => {
     const [cancelLoading, setCancelLoading] = useState(false);
 
     const loadCalendars = useCallback(async () => {
-        const response = await api.get<ApiResponse<Calendar[]>>('/api/calendars');
-        setCalendars(response.data.data);
-    }, []);
+        // Admin gets all calendars, doctor gets only their own
+        const response = isAdmin
+            ? await calendarApi.list()
+            : await calendarApi.listMine();
+        setCalendars((response.data as ApiResponse<Calendar[]>).data);
+    }, [isAdmin]);
 
     const loadAppointments = useCallback(
         async (range: ViewRange) => {
@@ -411,7 +414,7 @@ const CalendarsIndex = () => {
             const doctorId = info.event.extendedProps?.doctorId as string | undefined;
             const doctor = doctorId ? doctorMap.get(doctorId) : null;
             const doctorLabel = doctor?.name || doctor?.identifier;
-            const label = doctorLabel ? `Disponibilite Dr ${doctorLabel}` : 'Disponibilite';
+            const label = doctorLabel ? `Disponibilité Dr ${doctorLabel}` : 'Disponibilité';
             info.el.title = range ? `${label} (${range})` : label;
             return;
         }
@@ -491,7 +494,7 @@ const CalendarsIndex = () => {
                                     Aujourd hui
                                 </Button>
                                 <Button size="sm" variant="flat" onPress={() => handleNavigate('prev')}>
-                                    Prec
+                                    Préc
                                 </Button>
                                 <Button size="sm" variant="flat" onPress={() => handleNavigate('next')}>
                                     Suiv
@@ -508,7 +511,7 @@ const CalendarsIndex = () => {
                                     variant={includeDoctorScope ? 'solid' : 'flat'}
                                     onPress={() => setIncludeDoctorScope((current) => !current)}
                                 >
-                                    VM
+                                    Médecin
                                 </Button>
                                 {specialtyOptions.map((specialty) => (
                                     <Button
@@ -588,7 +591,7 @@ const CalendarsIndex = () => {
             <ConfirmDialog
                 isOpen={cancelOpen}
                 title="Annuler le rendez-vous"
-                description="Confirmez l annulation du rendez-vous selectionne."
+                description="Confirmez l'annulation du rendez-vous sélectionné."
                 confirmLabel="Annuler"
                 confirmColor="danger"
                 isLoading={cancelLoading}

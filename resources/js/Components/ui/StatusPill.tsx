@@ -9,9 +9,9 @@ const mapStatus = (
 ): { label: string; color: 'default' | 'primary' | 'success' | 'warning' | 'danger' } => {
     switch (value) {
         case 'booked':
-            return { label: 'Confirme', color: 'success' };
+            return { label: 'Confirmé', color: 'success' };
         case 'canceled':
-            return { label: 'Annule', color: 'danger' };
+            return { label: 'Annulé', color: 'danger' };
         default:
             return { label: value, color: 'default' };
     }

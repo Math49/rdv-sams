@@ -39,10 +39,10 @@ export const SpecialtyModal = ({
     return (
         <Modal isOpen={isOpen} onClose={onClose} backdrop="blur" size="lg">
             <ModalContent>
-                <ModalHeader>{editing ? 'Modifier une specialite' : 'Nouvelle specialite'}</ModalHeader>
+                <ModalHeader>{editing ? 'Modifier une spécialité' : 'Nouvelle spécialité'}</ModalHeader>
                 <ModalBody className="space-y-3">
                     <Input
-                        label="Nom de la specialite"
+                        label="Nom de la spécialité"
                         value={form.label}
                         onValueChange={(value) => onChange({ ...form, label: value })}
                         isRequired

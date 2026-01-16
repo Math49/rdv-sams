@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Availability\AvailabilitySlotController;
 use App\Http\Controllers\Api\BookingTokens\BookingTokenController;
 use App\Http\Controllers\Api\Calendars\CalendarController;
 use App\Http\Controllers\Api\Doctors\DoctorController;
+use App\Http\Controllers\Api\Me\MyCalendarController;
 use App\Http\Controllers\Api\Patient\PatientTokenController;
 use App\Http\Controllers\Api\Sams\SamsEventController;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,8 @@ Route::prefix('patient')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('me/calendars', [MyCalendarController::class, 'index']);
+
     Route::get('doctors', [DoctorController::class, 'index']);
     Route::get('doctors/{doctorId}', [DoctorController::class, 'show']);
 

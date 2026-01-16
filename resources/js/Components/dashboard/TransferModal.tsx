@@ -36,7 +36,7 @@ export const TransferModal = ({ isOpen, appointmentId, doctors, onClose, onTrans
                 toDoctorId,
                 reason: reason || undefined,
             });
-            toast.success('Transfert effectue');
+            toast.success('Transfert effectué');
             onTransferred?.();
             onClose();
         } catch {
@@ -55,10 +55,10 @@ export const TransferModal = ({ isOpen, appointmentId, doctors, onClose, onTrans
     return (
         <Modal isOpen={isOpen} onClose={handleClose} backdrop="blur">
             <ModalContent>
-                <ModalHeader>Transferer le rendez-vous</ModalHeader>
+                <ModalHeader>Transférer le rendez-vous</ModalHeader>
                 <ModalBody className="space-y-3">
                     <Select
-                        label="Medecin cible"
+                        label="Médecin cible"
                         selectedKeys={toDoctorId ? new Set([toDoctorId]) : new Set()}
                         onSelectionChange={(keys) => {
                             if (keys === 'all') {
@@ -86,7 +86,7 @@ export const TransferModal = ({ isOpen, appointmentId, doctors, onClose, onTrans
                         Annuler
                     </Button>
                     <Button color="primary" onPress={handleTransfer} isLoading={loading} isDisabled={!toDoctorId}>
-                        Transferer
+                        Transférer
                     </Button>
                 </ModalFooter>
             </ModalContent>

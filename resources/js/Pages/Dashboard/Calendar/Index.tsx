@@ -19,7 +19,7 @@ import { ConfirmDialog } from '@/Components/ui/ConfirmDialog';
 import { PageHeader } from '@/Components/ui/PageHeader';
 import { DashboardLayout } from '@/Layouts/DashboardLayout';
 import { useIsAdmin } from '@/hooks/useAuth';
-import { api, getAvailabilityFeed } from '@/lib/api';
+import { api, calendarApi, getAvailabilityFeed } from '@/lib/api';
 import { formatDateTimeFR, PARIS_TZ, toIsoParis } from '@/lib/date';
 import type { ApiResponse, Appointment, AppointmentType, AvailabilitySlot, Calendar, Doctor, SamsEvent } from '@/lib/types';
 
@@ -93,9 +93,12 @@ const CalendarIndex = () => {
     const selectedCalendarId = calendarIds.length === 1 ? calendarIds[0] : null;
 
     const loadCalendars = useCallback(async () => {
-        const response = await api.get<ApiResponse<Calendar[]>>('/api/calendars');
-        setCalendars(response.data.data);
-    }, []);
+        // Admin gets all calendars, doctor gets only their own
+        const response = isAdmin
+            ? await calendarApi.list()
+            : await calendarApi.listMine();
+        setCalendars((response.data as ApiResponse<Calendar[]>).data);
+    }, [isAdmin]);
 
     const loadAppointments = useCallback(
         async (range: ViewRange) => {
@@ -366,7 +369,7 @@ const CalendarIndex = () => {
             const start = info.event.start ? formatDateTimeFR(info.event.start) : '';
             const end = info.event.end ? formatDateTimeFR(info.event.end) : '';
             const range = end ? `${start} - ${end}` : start;
-            info.el.title = range ? `Disponibilite (${range})` : 'Disponibilite';
+            info.el.title = range ? `Disponibilité (${range})` : 'Disponibilité';
             return;
         }
         info.el.style.cursor = 'pointer';
@@ -423,9 +426,9 @@ const CalendarIndex = () => {
     const calendarLabel = selectedCalendar
         ? selectedCalendar.label ||
           (selectedCalendar.scope === 'doctor'
-              ? 'Visite medicale'
+              ? 'Visite médicale'
               : selectedCalendar.scope === 'specialty'
-                ? 'Specialite'
+                ? 'Spécialité'
                 : 'SAMS')
         : null;
     const doctorLabel = selectedAppointment
@@ -439,11 +442,11 @@ const CalendarIndex = () => {
             <Head title="Dashboard" />
             <div className="space-y-6">
                 <PageHeader
-                    title="Espace medecin"
-                    subtitle="Consultez vos rendez-vous et generez des tokens patients."
+                    title="Espace médecin"
+                    subtitle="Consultez vos rendez-vous et générez des tokens patients."
                     actions={
                         <Button color="primary" onPress={() => setTokenModalOpen(true)}>
-                            Generer un token
+                            Générer un token
                         </Button>
                     }
                 />
@@ -473,10 +476,10 @@ const CalendarIndex = () => {
                             <p className="text-sm text-sams-muted">{viewTitle || 'Calendrier'}</p>
                             <div className="flex flex-wrap items-center gap-2">
                                 <Button size="sm" variant="flat" onPress={() => handleNavigate('today')}>
-                                    Aujourd hui
+                                    Aujourd'hui
                                 </Button>
                                 <Button size="sm" variant="flat" onPress={() => handleNavigate('prev')}>
-                                    Prec
+                                    Préc
                                 </Button>
                                 <Button size="sm" variant="flat" onPress={() => handleNavigate('next')}>
                                     Suiv

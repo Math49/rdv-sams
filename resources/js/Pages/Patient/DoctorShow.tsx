@@ -77,7 +77,7 @@ const DoctorShow = () => {
                 <Card className="border border-sams-border bg-sams-surface/70">
                     <CardBody className="space-y-3">
                         <p className="text-sm text-sams-muted">
-                            Le token patient est manquant ou expire. Veuillez revenir a la page d acces.
+                            Le token patient est manquant ou expiré. Veuillez revenir à la page d'accès.
                         </p>
                         <Button color="primary" onPress={() => router.visit('/')}>
                             Retour
@@ -102,9 +102,9 @@ const DoctorShow = () => {
                 <div className="space-y-6">
                     <Card className="border border-sams-border bg-sams-surface/70">
                         <CardBody>
-                            <h2 className="text-xl font-semibold">{doctor?.name || doctor?.identifier}</h2>
+                            <h2 className="text-xl font-semibold">Dr. {doctor?.name || doctor?.identifier}</h2>
                             <p className="text-sm text-sams-muted">
-                                Choisissez un type de rendez-vous pour afficher les creneaux.
+                                Choisissez un type de rendez-vous pour afficher les créneaux.
                             </p>
                         </CardBody>
                     </Card>
