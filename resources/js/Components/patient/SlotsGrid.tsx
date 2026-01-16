@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { Button } from '@heroui/react';
 
 import type { AvailabilitySlot } from '@/lib/types';
-import { formatTime } from '@/lib/date';
+import { formatTime, PARIS_TZ } from '@/lib/date';
 
 type SlotsGridProps = {
     days: Date[];
@@ -15,17 +15,17 @@ export const SlotsGrid = ({ days, slots, selectedSlotStart, onSelect }: SlotsGri
     const slotsByDay = new Map<string, AvailabilitySlot[]>();
 
     slots.forEach((slot) => {
-        const key = dayjs(slot.startAt).format('YYYY-MM-DD');
+        const key = dayjs.tz(slot.startAt, PARIS_TZ).format('YYYY-MM-DD');
         const list = slotsByDay.get(key) ?? [];
         list.push(slot);
         slotsByDay.set(key, list);
     });
 
     days.forEach((day) => {
-        const key = dayjs(day).format('YYYY-MM-DD');
+        const key = dayjs.tz(day, PARIS_TZ).format('YYYY-MM-DD');
         const list = slotsByDay.get(key);
         if (list) {
-            list.sort((a, b) => dayjs(a.startAt).valueOf() - dayjs(b.startAt).valueOf());
+            list.sort((a, b) => dayjs.tz(a.startAt, PARIS_TZ).valueOf() - dayjs.tz(b.startAt, PARIS_TZ).valueOf());
         }
     });
 
@@ -34,14 +34,14 @@ export const SlotsGrid = ({ days, slots, selectedSlotStart, onSelect }: SlotsGri
     return (
         <div className="grid gap-4 lg:grid-cols-7">
             {days.map((day) => {
-                const key = dayjs(day).format('YYYY-MM-DD');
+                const key = dayjs.tz(day, PARIS_TZ).format('YYYY-MM-DD');
                 const list = slotsByDay.get(key) || [];
-                const dayIndex = (dayjs(day).day() + 6) % 7;
+                const dayIndex = (dayjs.tz(day, PARIS_TZ).day() + 6) % 7;
                 return (
                     <div key={key} className="space-y-2">
                         <div className="text-center">
                             <p className="text-xs text-neutral-400">{dayLabels[dayIndex]}</p>
-                            <p className="text-sm font-semibold text-white">{dayjs(day).date()}</p>
+                            <p className="text-sm font-semibold text-white">{dayjs.tz(day, PARIS_TZ).date()}</p>
                         </div>
                         <div className="space-y-2">
                             {list.length === 0 ? (

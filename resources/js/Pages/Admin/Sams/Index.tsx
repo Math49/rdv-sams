@@ -15,7 +15,7 @@ import { ConfirmDialog } from '@/Components/ui/ConfirmDialog';
 import { PageHeader } from '@/Components/ui/PageHeader';
 import { AdminLayout } from '@/Layouts/AdminLayout';
 import { adminApi } from '@/lib/api';
-import { formatDateTimeFR, toDateTimeLocal, toIsoUtc } from '@/lib/date';
+import { formatDateTimeFR, PARIS_TZ, toDateTimeLocal, toIsoParis } from '@/lib/date';
 import type { ApiResponse, SamsEvent } from '@/lib/types';
 import { useToast } from '@/hooks/useToast';
 
@@ -27,9 +27,9 @@ const viewOptions = [
 ] as const;
 
 const isAllDayEvent = (startAt: string, endAt?: string | null) => {
-    const start = dayjs(startAt);
+    const start = dayjs.tz(startAt, PARIS_TZ);
     if (!start.isValid()) return false;
-    const end = endAt ? dayjs(endAt) : null;
+    const end = endAt ? dayjs.tz(endAt, PARIS_TZ) : null;
     const startMidnight = start.hour() === 0 && start.minute() === 0 && start.second() === 0;
     const endMidnight = end ? end.hour() === 0 && end.minute() === 0 && end.second() === 0 : true;
 
@@ -79,8 +79,8 @@ const SamsIndex = () => {
     const loadEvents = useCallback(async (range?: ViewRange | null) => {
         const params = range
             ? {
-                  from: toIsoUtc(range.start),
-                  to: toIsoUtc(range.end),
+                  from: toIsoParis(range.start),
+                  to: toIsoParis(range.end),
               }
             : undefined;
         const response = await adminApi.samsEvents(params);
@@ -298,6 +298,7 @@ const SamsIndex = () => {
                                 initialView="timeGridWeek"
                                 headerToolbar={false}
                                 nowIndicator
+                                locale={"fr"}
                                 height="auto"
                                 expandRows
                                 dayMaxEventRows={3}

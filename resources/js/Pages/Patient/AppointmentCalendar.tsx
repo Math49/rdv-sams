@@ -7,7 +7,7 @@ import { GoogleLikeBookingLayout } from '@/Components/patient/GoogleLikeBookingL
 import { PatientAppointmentModal } from '@/Components/patient/PatientAppointmentModal';
 import { PatientLayout } from '@/Layouts/PatientLayout';
 import { patientApi } from '@/lib/api';
-import { toIsoUtc } from '@/lib/date';
+import { PARIS_TZ, toIsoParis } from '@/lib/date';
 import { clearPatientContext } from '@/lib/patient';
 import type {
     ApiResponse,
@@ -97,7 +97,7 @@ const AppointmentCalendar = ({ calendarId }: AppointmentCalendarProps) => {
     }, [calendarId]);
 
     const weekRange = useMemo(() => {
-        const start = startOfWeek(dayjs(selectedDate));
+    const start = startOfWeek(dayjs.tz(selectedDate, PARIS_TZ));
         const end = start.add(6, 'day').endOf('day');
         return { start, end };
     }, [selectedDate]);
@@ -115,8 +115,8 @@ const AppointmentCalendar = ({ calendarId }: AppointmentCalendarProps) => {
                     doctorId,
                     calendarId,
                     appointmentTypeId,
-                    from: toIsoUtc(weekRange.start.toDate()),
-                    to: toIsoUtc(weekRange.end.toDate()),
+                    from: toIsoParis(weekRange.start.toDate()),
+                    to: toIsoParis(weekRange.end.toDate()),
                 });
                 setSlots((response.data as ApiResponse<AvailabilitySlot[]>).data);
                 setSelectedSlot(null);

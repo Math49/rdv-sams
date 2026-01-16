@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $timezone = config('app.timezone', 'UTC');
+        $timezone = config('app.timezone', 'Europe/Paris');
 
         $specialties = [
             ['label' => 'Gynécologie', 'color' => '#EC4899'],
@@ -175,10 +175,10 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $workdays = [1, 2, 3, 4, 5];
+        $workdays = [1, 2, 3, 4, 5, 6, 7];
         $this->seedAvailabilityRules($doctor, $doctorCalendar, $workdays, [
-            ['start' => '09:00', 'end' => '12:00', 'slotMinutes' => 30],
-            ['start' => '14:00', 'end' => '18:00', 'slotMinutes' => 30],
+            ['start' => '09:00', 'end' => '12:00', 'slotMinutes' => 15],
+            ['start' => '14:00', 'end' => '18:00', 'slotMinutes' => 15],
         ], $timezone);
 
         $this->seedAvailabilityRules($doctor, $gynCalendar, $workdays, [
@@ -187,7 +187,7 @@ class DatabaseSeeder extends Seeder
         ], $timezone);
 
         $this->seedAvailabilityRules($doctor, $legalCalendar, $workdays, [
-            ['start' => '13:00', 'end' => '17:00', 'slotMinutes' => 60],
+            ['start' => '13:00', 'end' => '17:00', 'slotMinutes' => 30],
         ], $timezone);
 
         $tomorrow = Carbon::now($timezone)->addDay()->startOfDay();
@@ -311,7 +311,7 @@ class DatabaseSeeder extends Seeder
                 + (int) ($appointmentType->bufferBeforeMinutes ?? 0)
                 + (int) ($appointmentType->bufferAfterMinutes ?? 0);
 
-            $startAt = $appointment['start']->copy()->setTimezone($timezone)->utc();
+            $startAt = $appointment['start']->copy()->setTimezone($timezone);
             $endAt = $startAt->copy()->addMinutes($duration);
 
             Appointment::query()->updateOrCreate(

@@ -17,6 +17,7 @@ import { PageHeader } from '@/Components/ui/PageHeader';
 import { SectionCard } from '@/Components/ui/SectionCard';
 import { DashboardLayout } from '@/Layouts/DashboardLayout';
 import { api } from '@/lib/api';
+import { PARIS_TZ } from '@/lib/date';
 import type { ApiResponse, AvailabilityRule } from '@/lib/types';
 import { useToast } from '@/hooks/useToast';
 
@@ -38,7 +39,7 @@ const Rules = ({ calendarId }: RulesProps) => {
         slotMinutes: '30',
         validFrom: '',
         validTo: '',
-        timezone: '',
+        timezone: PARIS_TZ,
     });
     const { success } = useToast();
 
@@ -67,7 +68,7 @@ const Rules = ({ calendarId }: RulesProps) => {
             slotMinutes: '30',
             validFrom: '',
             validTo: '',
-            timezone: '',
+            timezone: PARIS_TZ,
         });
         setModalOpen(true);
     };
@@ -81,7 +82,7 @@ const Rules = ({ calendarId }: RulesProps) => {
             slotMinutes: String(rule.slotMinutes),
             validFrom: rule.validFrom || '',
             validTo: rule.validTo || '',
-            timezone: rule.timezone || '',
+            timezone: rule.timezone || PARIS_TZ,
         });
         setModalOpen(true);
     };
@@ -94,7 +95,7 @@ const Rules = ({ calendarId }: RulesProps) => {
             slotMinutes: Number(form.slotMinutes),
             validFrom: form.validFrom || null,
             validTo: form.validTo || null,
-            timezone: form.timezone || null,
+            timezone: PARIS_TZ,
         };
 
         if (editing) {
@@ -207,7 +208,7 @@ const Rules = ({ calendarId }: RulesProps) => {
                         <Input
                             label="Timezone"
                             value={form.timezone}
-                            onValueChange={(value) => setForm({ ...form, timezone: value })}
+                            isReadOnly
                         />
                     </ModalBody>
                     <ModalFooter className="gap-2">

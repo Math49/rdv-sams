@@ -28,14 +28,14 @@ class PatientTokenController extends Controller
             ], 401);
         }
 
-        $expiresAt = $bookingToken->expiresAt?->copy()->utc();
-        if (! $expiresAt || $expiresAt->lte(now('UTC'))) {
+        $expiresAt = $bookingToken->expiresAt?->copy();
+        if (! $expiresAt || $expiresAt->lte(now())) {
             return response()->json([
                 'message' => 'Invalid or expired token',
             ], 401);
         }
 
-        $seconds = now('UTC')->diffInSeconds($expiresAt, false);
+        $seconds = now()->diffInSeconds($expiresAt, false);
         if ($seconds <= 0) {
             return response()->json([
                 'message' => 'Invalid or expired token',

@@ -62,11 +62,11 @@ class AppointmentController extends Controller
         }
 
         if ($from = $request->query('from')) {
-            $query->where('startAt', '>=', Carbon::parse($from)->utc());
+            $query->where('startAt', '>=', Carbon::parse($from));
         }
 
         if ($to = $request->query('to')) {
-            $query->where('startAt', '<=', Carbon::parse($to)->utc());
+            $query->where('startAt', '<=', Carbon::parse($to));
         }
 
         return response()->json([
@@ -139,7 +139,7 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $startAt = Carbon::parse($data['startAt'])->utc();
+        $startAt = Carbon::parse($data['startAt']);
         $endAt = $startAt->copy()->addMinutes($this->slotLengthMinutes($appointmentType));
 
         if (! $this->availabilityService->isSlotAvailable($doctorId, $data['calendarId'], $startAt, $appointmentType)) {
@@ -226,8 +226,8 @@ class AppointmentController extends Controller
         }
 
         $startAt = isset($data['startAt'])
-            ? Carbon::parse($data['startAt'])->utc()
-            : $appointment->startAt->copy()->utc();
+            ? Carbon::parse($data['startAt'])
+            : $appointment->startAt->copy();
         $endAt = $startAt->copy()->addMinutes($this->slotLengthMinutes($appointmentType));
 
         if (isset($data['startAt']) || isset($data['appointmentTypeId'])) {
@@ -363,7 +363,7 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $startAt = Carbon::parse($data['startAt'])->utc();
+        $startAt = Carbon::parse($data['startAt']);
         $endAt = $startAt->copy()->addMinutes($this->slotLengthMinutes($appointmentType));
 
         if (! $this->availabilityService->isSlotAvailable(
@@ -398,7 +398,7 @@ class AppointmentController extends Controller
             'reason' => $data['reason'] ?? null,
         ]);
 
-        $bookingToken->usedAt = now('UTC');
+        $bookingToken->usedAt = now();
         $bookingToken->usedMeta = [
             'ip' => $request->ip(),
             'userAgent' => $request->userAgent(),

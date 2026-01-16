@@ -55,7 +55,7 @@ class PatientTokenService
      */
     public function buildContext(BookingToken $bookingToken): array
     {
-        $expiresAt = $bookingToken->expiresAt->copy()->utc();
+        $expiresAt = $bookingToken->expiresAt->copy();
 
         return [
             'doctorId' => (string) $bookingToken->doctorId,
@@ -95,7 +95,7 @@ class PatientTokenService
 
     private function isValid(BookingToken $bookingToken): bool
     {
-        $now = now('UTC');
+        $now = now();
         if (! $bookingToken->expiresAt || $bookingToken->expiresAt->lte($now)) {
             return false;
         }

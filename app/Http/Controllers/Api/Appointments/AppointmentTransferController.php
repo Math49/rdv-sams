@@ -34,8 +34,8 @@ class AppointmentTransferController extends Controller
 
         $data = $request->validated();
         $toDoctorId = $data['toDoctorId'];
-        $startAt = $appointment->startAt->copy()->utc();
-        $endAt = $appointment->endAt->copy()->utc();
+        $startAt = $appointment->startAt->copy();
+        $endAt = $appointment->endAt->copy();
 
         if ($this->appointmentService->hasOverlap($toDoctorId, $startAt, $endAt, $id)) {
             return response()->json([
@@ -48,7 +48,7 @@ class AppointmentTransferController extends Controller
             'fromDoctorId' => (string) $appointment->doctorId,
             'toDoctorId' => $toDoctorId,
             'reason' => $data['reason'] ?? null,
-            'transferredAt' => now('UTC'),
+            'transferredAt' => now(),
         ];
         $appointment->doctorId = $toDoctorId;
         $appointment->save();

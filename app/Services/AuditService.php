@@ -15,7 +15,7 @@ class AuditService
         $log->entityType = $entityType;
         $log->entityId = $entityId;
         $log->payload = $payload;
-        $log->createdAt = now('UTC');
+        $log->createdAt = now();
         $log->save();
 
         return $log;

@@ -22,7 +22,7 @@ import type { DatesSetArg, EventClickArg, EventInput } from '@fullcalendar/core'
 import { PatientLayout } from '@/Layouts/PatientLayout';
 import { PatientForm } from '@/Components/patient/PatientForm';
 import { api, patientApi } from '@/lib/api';
-import { formatDateTimeFR, toIsoUtc } from '@/lib/date';
+import { formatDateTimeFR, toIsoParis } from '@/lib/date';
 import { clearPatientContext } from '@/lib/patient';
 import type { ApiResponse, AppointmentType, AvailabilitySlot, PatientInfo, PatientTokenContext } from '@/lib/types';
 import { useToast } from '@/hooks/useToast';
@@ -113,8 +113,8 @@ const Booking = ({ calendarId }: BookingProps) => {
                         doctorId,
                         calendarId,
                         appointmentTypeId,
-                        from: toIsoUtc(viewRange.start),
-                        to: toIsoUtc(viewRange.end),
+                        from: toIsoParis(viewRange.start),
+                        to: toIsoParis(viewRange.end),
                     },
                 });
                 setSlots(response.data.data);
@@ -311,6 +311,7 @@ const Booking = ({ calendarId }: BookingProps) => {
                                 nowIndicator
                                 height="auto"
                                 expandRows
+                                locale={"fr"}
                                 dayMaxEventRows={3}
                                 slotMinTime="00:00:00"
                                 slotMaxTime="23:59:59"

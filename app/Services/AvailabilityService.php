@@ -24,8 +24,9 @@ class AvailabilityService
         ?string $ignoreAppointmentId = null
     ): array
     {
-        $fromUtc = $from->copy()->utc();
-        $toUtc = $to->copy()->utc();
+        $timezone = config('app.timezone', 'Europe/Paris');
+        $fromLocal = $from->copy()->setTimezone($timezone);
+        $toLocal = $to->copy()->setTimezone($timezone);
 
         $slotLength = $this->slotLengthMinutes($appointmentType);
         if ($slotLength <= 0) {
@@ -40,15 +41,14 @@ class AvailabilityService
         $exceptions = AvailabilityException::query()
             ->where('doctorId', new ObjectId($doctorId))
             ->where('calendarId', new ObjectId($calendarId))
-            ->whereBetween('date', [$fromUtc->toDateString(), $toUtc->toDateString()])
+            ->whereBetween('date', [$fromLocal->toDateString(), $toLocal->toDateString()])
             ->get();
 
         $slots = [];
 
         foreach ($rules as $rule) {
-            $timezone = $rule->timezone ?: config('app.timezone', 'UTC');
-            $periodStart = $fromUtc->copy()->setTimezone($timezone)->startOfDay();
-            $periodEnd = $toUtc->copy()->setTimezone($timezone)->startOfDay();
+            $periodStart = $fromLocal->copy()->startOfDay();
+            $periodEnd = $toLocal->copy()->startOfDay();
 
             $period = CarbonPeriod::create($periodStart, $periodEnd);
 
@@ -84,17 +84,15 @@ class AvailabilityService
                 $slotStart = $windowStart->copy();
                 while ($slotStart->copy()->addMinutes($slotLength)->lte($windowEnd)) {
                     $slotEnd = $slotStart->copy()->addMinutes($slotLength);
-                    $slotStartUtc = $slotStart->copy()->utc();
-                    $slotEndUtc = $slotEnd->copy()->utc();
 
-                    if ($slotStartUtc->lt($fromUtc) || $slotEndUtc->gt($toUtc)) {
+                    if ($slotStart->lt($fromLocal) || $slotEnd->gt($toLocal)) {
                         $slotStart->addMinutes($stepMinutes);
                         continue;
                     }
 
                     $slots[] = [
-                        'startAt' => $slotStartUtc,
-                        'endAt' => $slotEndUtc,
+                        'startAt' => $slotStart->copy(),
+                        'endAt' => $slotEnd->copy(),
                     ];
 
                     $slotStart->addMinutes($stepMinutes);
@@ -103,7 +101,7 @@ class AvailabilityService
         }
 
         $slots = $this->applyExceptions($slots, $exceptions, $slotLength);
-        $slots = $this->removeOverlapsWithAppointments($slots, $doctorId, $fromUtc, $toUtc, $ignoreAppointmentId);
+        $slots = $this->removeOverlapsWithAppointments($slots, $doctorId, $fromLocal, $toLocal, $ignoreAppointmentId);
 
         return $this->dedupeAndSort($slots);
     }
@@ -137,9 +135,12 @@ class AvailabilityService
 
         $endAt = $startAt->copy()->addMinutes($slotLength);
         $slots = $this->buildSlots($doctorId, $calendarId, $startAt, $endAt, $appointmentType, $ignoreAppointmentId);
+        $timezone = config('app.timezone', 'Europe/Paris');
+        $startAtLocal = $startAt->copy()->setTimezone($timezone);
+        $endAtLocal = $endAt->copy()->setTimezone($timezone);
 
         foreach ($slots as $slot) {
-            if ($slot['startAt']->equalTo($startAt->copy()->utc()) && $slot['endAt']->equalTo($endAt->copy()->utc())) {
+            if ($slot['startAt']->equalTo($startAtLocal) && $slot['endAt']->equalTo($endAtLocal)) {
                 return true;
             }
         }
@@ -160,7 +161,7 @@ class AvailabilityService
      */
     private function applyExceptions(array $slots, $exceptions, int $slotLength): array
     {
-        $timezone = config('app.timezone', 'UTC');
+        $timezone = config('app.timezone', 'Europe/Paris');
 
         foreach ($exceptions as $exception) {
             if (! $exception->date || ! $exception->startTime || ! $exception->endTime) {
@@ -178,24 +179,21 @@ class AvailabilityService
                 $timezone
             );
 
-            $startUtc = $start->copy()->utc();
-            $endUtc = $end->copy()->utc();
-
             if ($exception->kind === 'add') {
                 $slotStart = $start->copy();
                 while ($slotStart->copy()->addMinutes($slotLength)->lte($end)) {
                     $slotEnd = $slotStart->copy()->addMinutes($slotLength);
                     $slots[] = [
-                        'startAt' => $slotStart->copy()->utc(),
-                        'endAt' => $slotEnd->copy()->utc(),
+                        'startAt' => $slotStart->copy(),
+                        'endAt' => $slotEnd->copy(),
                     ];
                     $slotStart->addMinutes($slotLength);
                 }
                 continue;
             }
 
-            $slots = array_values(array_filter($slots, function (array $slot) use ($startUtc, $endUtc) {
-                return ! ($slot['startAt']->lt($endUtc) && $slot['endAt']->gt($startUtc));
+            $slots = array_values(array_filter($slots, function (array $slot) use ($start, $end) {
+                return ! ($slot['startAt']->lt($end) && $slot['endAt']->gt($start));
             }));
         }
 

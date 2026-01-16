@@ -17,10 +17,10 @@ class SamsEventController extends Controller
     {
         $query = SamsEvent::query();
         if ($from = $request->query('from')) {
-            $query->where('startAt', '>=', Carbon::parse($from)->utc());
+            $query->where('startAt', '>=', Carbon::parse($from));
         }
         if ($to = $request->query('to')) {
-            $query->where('startAt', '<=', Carbon::parse($to)->utc());
+            $query->where('startAt', '<=', Carbon::parse($to));
         }
 
         return response()->json([

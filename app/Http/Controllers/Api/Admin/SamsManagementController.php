@@ -28,8 +28,8 @@ class SamsManagementController extends Controller
         $data = $request->validated();
         $event = SamsEvent::query()->create([
             'title' => $data['title'],
-            'startAt' => Carbon::parse($data['startAt'])->utc(),
-            'endAt' => Carbon::parse($data['endAt'])->utc(),
+            'startAt' => Carbon::parse($data['startAt']),
+            'endAt' => Carbon::parse($data['endAt']),
             'location' => $data['location'] ?? null,
             'description' => $data['description'] ?? null,
             'source' => $data['source'] ?? null,
@@ -50,10 +50,10 @@ class SamsManagementController extends Controller
 
         $data = $request->validated();
         if (isset($data['startAt'])) {
-            $data['startAt'] = Carbon::parse($data['startAt'])->utc();
+            $data['startAt'] = Carbon::parse($data['startAt']);
         }
         if (isset($data['endAt'])) {
-            $data['endAt'] = Carbon::parse($data['endAt'])->utc();
+            $data['endAt'] = Carbon::parse($data['endAt']);
         }
 
         $event->fill($data);

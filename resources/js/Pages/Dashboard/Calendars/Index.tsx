@@ -18,7 +18,7 @@ import { PageHeader } from '@/Components/ui/PageHeader';
 import { DashboardLayout } from '@/Layouts/DashboardLayout';
 import { useIsAdmin } from '@/hooks/useAuth';
 import { adminApi, api, getAvailabilityFeed } from '@/lib/api';
-import { formatDateTimeFR, toIsoUtc } from '@/lib/date';
+import { formatDateTimeFR, PARIS_TZ, toIsoParis } from '@/lib/date';
 import type { ApiResponse, Appointment, AvailabilitySlot, Calendar, Doctor, SamsEvent, Specialty } from '@/lib/types';
 
 const viewOptions = [
@@ -49,9 +49,9 @@ const getEventTextColor = (hexColor?: string | null) => {
 };
 
 const isAllDayEvent = (startAt: string, endAt?: string | null) => {
-    const start = dayjs(startAt);
+    const start = dayjs.tz(startAt, PARIS_TZ);
     if (!start.isValid()) return false;
-    const end = endAt ? dayjs(endAt) : null;
+    const end = endAt ? dayjs.tz(endAt, PARIS_TZ) : null;
     const startMidnight = start.hour() === 0 && start.minute() === 0 && start.second() === 0;
     const endMidnight = end ? end.hour() === 0 && end.minute() === 0 && end.second() === 0 : true;
 
@@ -96,8 +96,8 @@ const CalendarsIndex = () => {
             setAppointmentsLoading(true);
             try {
                 const params: Record<string, string | string[]> = {
-                    from: toIsoUtc(range.start),
-                    to: toIsoUtc(range.end),
+                    from: toIsoParis(range.start),
+                    to: toIsoParis(range.end),
                 };
 
                 if (isAdmin && selectedDoctorIds.length > 0) {
@@ -120,8 +120,8 @@ const CalendarsIndex = () => {
                 return;
             }
             const response = await getAvailabilityFeed({
-                from: toIsoUtc(range.start),
-                to: toIsoUtc(range.end),
+                from: toIsoParis(range.start),
+                to: toIsoParis(range.end),
                 doctorIds: selectedDoctorIds,
                 calendarIds,
             });
@@ -154,8 +154,8 @@ const CalendarsIndex = () => {
     const loadSamsEvents = useCallback(async (range?: ViewRange | null) => {
         const params = range
             ? {
-                  from: toIsoUtc(range.start),
-                  to: toIsoUtc(range.end),
+                  from: toIsoParis(range.start),
+                  to: toIsoParis(range.end),
               }
             : undefined;
         const response = await api.get<ApiResponse<SamsEvent[]>>('/api/sams/events', { params });
@@ -550,6 +550,7 @@ const CalendarsIndex = () => {
                                 nowIndicator
                                 height="auto"
                                 expandRows
+                                locale={"fr"}
                                 dayMaxEventRows={3}
                                 slotMinTime="00:00:00"
                                 slotMaxTime="23:59:59"

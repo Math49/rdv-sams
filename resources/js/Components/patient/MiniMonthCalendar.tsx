@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { Button } from '@heroui/react';
 
+import { PARIS_TZ } from '@/lib/date';
+
 const monthLabels = [
     'Janvier',
     'Fevrier',
@@ -31,10 +33,10 @@ type MiniMonthCalendarProps = {
 };
 
 export const MiniMonthCalendar = ({ selectedDate, onSelect }: MiniMonthCalendarProps) => {
-    const [month, setMonth] = useState(dayjs(selectedDate).startOf('month'));
+    const [month, setMonth] = useState(dayjs.tz(selectedDate, PARIS_TZ).startOf('month'));
 
     useEffect(() => {
-        setMonth(dayjs(selectedDate).startOf('month'));
+        setMonth(dayjs.tz(selectedDate, PARIS_TZ).startOf('month'));
     }, [selectedDate]);
 
     const days = useMemo(() => {
@@ -72,10 +74,10 @@ export const MiniMonthCalendar = ({ selectedDate, onSelect }: MiniMonthCalendarP
             <div className="mt-2 grid grid-cols-7 gap-1 text-center text-sm">
                 {days.map((day) => {
                     const isCurrentMonth = day.month() === month.month();
-                    const isSelected = day.isSame(dayjs(selectedDate), 'day');
+                    const isSelected = day.isSame(dayjs.tz(selectedDate, PARIS_TZ), 'day');
                     return (
                         <button
-                            key={day.toISOString()}
+                            key={day.format('YYYY-MM-DD')}
                             type="button"
                             onClick={() => onSelect(day.toDate())}
                             className={`h-8 rounded-full text-xs transition ${

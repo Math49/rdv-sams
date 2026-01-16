@@ -23,7 +23,7 @@ class BookingTokenService
             'calendarScope' => $calendar->scope,
             'calendarId' => $calendar->getKey(),
             'specialtyId' => $calendar->specialtyId,
-            'expiresAt' => now('UTC')->addDay(),
+            'expiresAt' => now()->addDay(),
             'createdByUserId' => $actor->getKey(),
         ]);
         $bookingToken->tokenHash = $hash;
@@ -44,7 +44,7 @@ class BookingTokenService
             return null;
         }
 
-        $now = now('UTC');
+        $now = now();
         if (! $bookingToken->expiresAt || $bookingToken->expiresAt->lte($now)) {
             return null;
         }

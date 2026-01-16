@@ -27,8 +27,8 @@ class AvailabilitySlotController extends Controller
         $user = $request->user();
         $data = $request->validated();
 
-        $from = Carbon::parse($data['from'])->utc();
-        $to = Carbon::parse($data['to'])->utc();
+        $from = Carbon::parse($data['from']);
+        $to = Carbon::parse($data['to']);
 
         $doctorIds = [];
         if (! empty($data['doctorId'])) {
@@ -200,8 +200,8 @@ class AvailabilitySlotController extends Controller
             ], 422);
         }
 
-        $from = Carbon::parse($data['from'])->utc();
-        $to = Carbon::parse($data['to'])->utc();
+        $from = Carbon::parse($data['from']);
+        $to = Carbon::parse($data['to']);
 
         $slots = $this->availabilityService->getSlots(
             $doctorId,
@@ -280,8 +280,8 @@ class AvailabilitySlotController extends Controller
             ], 422);
         }
 
-        $from = Carbon::parse($data['from'])->utc();
-        $to = Carbon::parse($data['to'])->utc();
+        $from = Carbon::parse($data['from']);
+        $to = Carbon::parse($data['to']);
 
         $slots = $this->availabilityService->getSlots(
             $data['doctorId'],

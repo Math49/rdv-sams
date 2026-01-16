@@ -84,11 +84,8 @@ class AvailabilityRuleController extends Controller
             'slotMinutes' => $data['slotMinutes'],
             'validFrom' => $data['validFrom'] ?? null,
             'validTo' => $data['validTo'] ?? null,
+            'timezone' => config('app.timezone', 'Europe/Paris'),
         ];
-
-        if (array_key_exists('timezone', $data)) {
-            $payload['timezone'] = $data['timezone'];
-        }
 
         $rule = AvailabilityRule::query()->create($payload);
 
@@ -113,7 +110,9 @@ class AvailabilityRuleController extends Controller
             }
         }
 
-        $rule->fill($request->validated());
+        $data = $request->validated();
+        $data['timezone'] = config('app.timezone', 'Europe/Paris');
+        $rule->fill($data);
         $rule->save();
 
         return response()->json([
