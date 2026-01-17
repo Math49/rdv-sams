@@ -11,7 +11,7 @@
             }
         </style>
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>RDV-SAMS</title>
 
         <link rel="icon" href="/Logo_SAMS.png" type="image/png">
 
