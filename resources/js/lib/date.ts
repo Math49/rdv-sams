@@ -12,7 +12,10 @@ dayjs.tz.setDefault(PARIS_TZ);
 
 const toParis = (value?: string | Date | null): dayjs.Dayjs | null => {
     if (!value) return null;
-    return dayjs.tz(value, PARIS_TZ);
+    // Parse the date and convert to Paris timezone
+    // dayjs(value) parses the date respecting any timezone info in the string (like Z for UTC)
+    // .tz(PARIS_TZ) then converts it to Paris timezone
+    return dayjs(value).tz(PARIS_TZ);
 };
 
 export const formatDate = (value?: string | Date | null): string => {

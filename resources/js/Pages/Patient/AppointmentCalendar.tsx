@@ -7,13 +7,14 @@ import { GoogleLikeBookingLayout } from '@/Components/patient/GoogleLikeBookingL
 import { PatientAppointmentModal } from '@/Components/patient/PatientAppointmentModal';
 import { BackButton } from '@/Components/ui/BackButton';
 import { PatientLayout } from '@/Layouts/PatientLayout';
-import { patientApi } from '@/lib/api';
-import { PARIS_TZ, toIsoParis } from '@/lib/date';
+import { api, patientApi } from '@/lib/api';
+import { formatDateTimeFR, PARIS_TZ, toIsoParis } from '@/lib/date';
 import { clearPatientContext } from '@/lib/patient';
 import type {
     ApiResponse,
     AppointmentType,
     AvailabilitySlot,
+    Calendar,
     Doctor,
     PatientInfo,
     PatientTokenContext,
@@ -35,6 +36,7 @@ const AppointmentCalendar = ({ calendarId }: AppointmentCalendarProps) => {
 
     const [context, setContext] = useState<PatientTokenContext | null>(null);
     const [loadingContext, setLoadingContext] = useState(true);
+    const [calendar, setCalendar] = useState<Calendar | null>(null);
     const [doctor, setDoctor] = useState<Doctor | null>(null);
     const [appointmentTypes, setAppointmentTypes] = useState<AppointmentType[]>([]);
     const [appointmentTypeId, setAppointmentTypeId] = useState('');
@@ -68,6 +70,45 @@ const AppointmentCalendar = ({ calendarId }: AppointmentCalendarProps) => {
     }, []);
 
     const doctorId = context?.doctorId || '';
+
+    // Calculate booking window
+    const bookingWindow = useMemo(() => {
+        const bookingMinHours = calendar?.bookingMinHours ?? context?.bookingMinHours ?? 0;
+        const bookingMaxDays = calendar?.bookingMaxDays ?? context?.bookingMaxDays ?? 365;
+        const now = dayjs.tz(new Date(), PARIS_TZ);
+        const minStart = now.add(bookingMinHours, 'hour');
+        const maxStart = now.add(bookingMaxDays, 'day').endOf('day');
+        return {
+            minStart: minStart.toDate(),
+            maxStart: maxStart.toDate(),
+            bookingMinHours,
+            bookingMaxDays,
+        };
+    }, [calendar, context]);
+
+    // Booking window message
+    const bookingWindowMessage = useMemo(() => {
+        const { minStart, maxStart, bookingMinHours, bookingMaxDays } = bookingWindow;
+        if (bookingMinHours === 0 && bookingMaxDays >= 365) return null;
+        const minFormatted = formatDateTimeFR(minStart);
+        const maxFormatted = formatDateTimeFR(maxStart);
+        return `Réservation possible du ${minFormatted} au ${maxFormatted}.`;
+    }, [bookingWindow]);
+
+    // Load calendar info
+    useEffect(() => {
+        const loadCalendar = async () => {
+            try {
+                const response = await patientApi.getCalendars(doctorId);
+                const calendars = (response.data as ApiResponse<Calendar[]>).data;
+                const found = calendars.find((c) => (c._id || c.id) === calendarId);
+                setCalendar(found || null);
+            } catch {
+                setCalendar(null);
+            }
+        };
+        if (doctorId) loadCalendar();
+    }, [doctorId, calendarId]);
 
     useEffect(() => {
         if (!doctorId) return;
@@ -265,6 +306,9 @@ const AppointmentCalendar = ({ calendarId }: AppointmentCalendarProps) => {
                         slots={slots}
                         selectedSlotStart={selectedSlot?.startAt || null}
                         onSelectSlot={handleSelectSlot}
+                        minDate={bookingWindow.minStart}
+                        maxDate={bookingWindow.maxStart}
+                        bookingWindowMessage={bookingWindowMessage}
                     />
                 </div>
             </div>

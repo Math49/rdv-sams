@@ -24,6 +24,8 @@ class Calendar extends Model
         'color',
         'message',
         'isActive',
+        'bookingMinHours',
+        'bookingMaxDays',
     ];
 
     protected function casts(): array
@@ -32,7 +34,25 @@ class Calendar extends Model
             'doctorId' => ObjectId::class,
             'specialtyId' => ObjectId::class,
             'isActive' => 'boolean',
+            'bookingMinHours' => 'integer',
+            'bookingMaxDays' => 'integer',
         ];
+    }
+
+    /**
+     * Get booking min hours with default value.
+     */
+    public function getBookingMinHours(): int
+    {
+        return $this->bookingMinHours ?? 0;
+    }
+
+    /**
+     * Get booking max days with default value.
+     */
+    public function getBookingMaxDays(): int
+    {
+        return $this->bookingMaxDays ?? 365;
     }
 
     public function appointmentTypes()
