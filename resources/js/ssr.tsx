@@ -6,7 +6,7 @@ import ReactDOMServer from 'react-dom/server';
 
 import { ToastProvider } from './Components/ui/ToastProvider';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = 'RDV-SAMS';
 
 createServer((page) =>
     createInertiaApp({
