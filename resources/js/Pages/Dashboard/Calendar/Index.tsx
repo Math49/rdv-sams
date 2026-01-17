@@ -18,7 +18,6 @@ import { TransferAppointmentModal } from '@/Components/dashboard/TransferAppoint
 import { ConfirmDialog } from '@/Components/ui/ConfirmDialog';
 import { PageHeader } from '@/Components/ui/PageHeader';
 import { DashboardLayout } from '@/Layouts/DashboardLayout';
-import { useIsAdmin } from '@/hooks/useAuth';
 import { api, calendarApi, getAvailabilityFeed } from '@/lib/api';
 import { formatDateTimeFR, PARIS_TZ, toIsoParis } from '@/lib/date';
 import type { ApiResponse, Appointment, AppointmentType, AvailabilitySlot, Calendar, Doctor, SamsEvent } from '@/lib/types';
@@ -62,7 +61,6 @@ const isAllDayEvent = (startAt: string, endAt?: string | null) => {
 };
 
 const CalendarIndex = () => {
-    const isAdmin = useIsAdmin();
     const calendarRef = useRef<FullCalendar | null>(null);
     const [calendars, setCalendars] = useState<Calendar[]>([]);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -93,12 +91,10 @@ const CalendarIndex = () => {
     const selectedCalendarId = calendarIds.length === 1 ? calendarIds[0] : null;
 
     const loadCalendars = useCallback(async () => {
-        // Admin gets all calendars, doctor gets only their own
-        const response = isAdmin
-            ? await calendarApi.list()
-            : await calendarApi.listMine();
+        // Each user sees only their own calendars
+        const response = await calendarApi.listMine();
         setCalendars((response.data as ApiResponse<Calendar[]>).data);
-    }, [isAdmin]);
+    }, []);
 
     const loadAppointments = useCallback(
         async (range: ViewRange) => {
@@ -109,7 +105,7 @@ const CalendarIndex = () => {
                     to: toIsoParis(range.end),
                 };
 
-                if (!isAdmin && calendarIds.length > 0) {
+                if (calendarIds.length > 0) {
                     params.calendarIds = calendarIds;
                 }
 
@@ -119,7 +115,7 @@ const CalendarIndex = () => {
                 setAppointmentsLoading(false);
             }
         },
-        [calendarIds, isAdmin],
+        [calendarIds],
     );
 
     const loadAvailability = useCallback(
