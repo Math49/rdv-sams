@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('calendars', [CalendarController::class, 'index']);
     Route::patch('calendars/{calendarId}/message', [CalendarController::class, 'updateMessage']);
+    Route::patch('calendars/{calendarId}/booking-window', [CalendarController::class, 'updateBookingWindow']);
 
     Route::get('calendars/{calendarId}/appointment-types', [AppointmentTypeController::class, 'index']);
     Route::post('calendars/{calendarId}/appointment-types', [AppointmentTypeController::class, 'store']);

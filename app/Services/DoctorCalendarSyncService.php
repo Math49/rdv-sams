@@ -77,7 +77,7 @@ class DoctorCalendarSyncService
         return Calendar::query()->create([
             'scope' => 'doctor',
             'doctorId' => (string) $doctorId,
-            'label' => 'Visite Médicale',
+            'label' => 'Médical',
             'isActive' => true,
         ]);
     }

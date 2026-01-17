@@ -90,6 +90,8 @@ const AppointmentHome = () => {
     const vmCalendar = calendars.find((calendar) => calendar.scope === 'doctor') || null;
     const specialtyCalendars = calendars.filter((calendar) => calendar.scope === 'specialty');
 
+    const noCalendars = !vmCalendar && specialtyCalendars.length === 0;
+
     return (
         <PatientLayout>
             <Head title="Prise de RDV" />
@@ -110,25 +112,35 @@ const AppointmentHome = () => {
                         </CardBody>
                     </Card>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                        {vmCalendar ? (
-                            <AppointmentTypeCard
-                                title="Visite médicale"
-                                description={vmCalendar.label || 'Calendrier médecin'}
-                                actionLabel="Choisir"
-                                onSelect={() => handleSelect(vmCalendar._id || vmCalendar.id || '')}
-                            />
-                        ) : null}
-                        {specialtyCalendars.map((calendar) => (
-                            <AppointmentTypeCard
-                                key={calendar._id || calendar.id}
-                                title={calendar.label || 'Spécialité'}
-                                description="Consultation spécialisée"
-                                actionLabel="Choisir"
-                                onSelect={() => handleSelect(calendar._id || calendar.id || '')}
-                            />
-                        ))}
-                    </div>
+                    {noCalendars ? (
+                        <Card className="border border-sams-border bg-sams-surface">
+                            <CardBody>
+                                <p className="text-sm text-sams-muted">
+                                    Aucun calendrier disponible pour ce médecin. Veuillez contacter le secrétariat.
+                                </p>
+                            </CardBody>
+                        </Card>
+                    ) : (
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {vmCalendar ? (
+                                <AppointmentTypeCard
+                                    title="Médical"
+                                    description={vmCalendar.label || 'Calendrier médecin'}
+                                    actionLabel="Choisir"
+                                    onSelect={() => handleSelect(vmCalendar._id || vmCalendar.id || '')}
+                                />
+                            ) : null}
+                            {specialtyCalendars.map((calendar) => (
+                                <AppointmentTypeCard
+                                    key={calendar._id || calendar.id}
+                                    title={calendar.label || 'Spécialité'}
+                                    description="Consultation spécialisée"
+                                    actionLabel="Choisir"
+                                    onSelect={() => handleSelect(calendar._id || calendar.id || '')}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
         </PatientLayout>

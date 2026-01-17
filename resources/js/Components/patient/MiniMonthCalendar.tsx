@@ -30,9 +30,11 @@ const startOfWeek = (date: dayjs.Dayjs) => {
 type MiniMonthCalendarProps = {
     selectedDate: Date;
     onSelect: (date: Date) => void;
+    minDate?: Date | null;
+    maxDate?: Date | null;
 };
 
-export const MiniMonthCalendar = ({ selectedDate, onSelect }: MiniMonthCalendarProps) => {
+export const MiniMonthCalendar = ({ selectedDate, onSelect, minDate, maxDate }: MiniMonthCalendarProps) => {
     const [month, setMonth] = useState(dayjs.tz(selectedDate, PARIS_TZ).startOf('month'));
 
     useEffect(() => {
@@ -50,6 +52,15 @@ export const MiniMonthCalendar = ({ selectedDate, onSelect }: MiniMonthCalendarP
         }
         return list;
     }, [month]);
+
+    const minDayjs = minDate ? dayjs.tz(minDate, PARIS_TZ).startOf('day') : null;
+    const maxDayjs = maxDate ? dayjs.tz(maxDate, PARIS_TZ).endOf('day') : null;
+
+    const isDisabled = (day: dayjs.Dayjs) => {
+        if (minDayjs && day.isBefore(minDayjs, 'day')) return true;
+        if (maxDayjs && day.isAfter(maxDayjs, 'day')) return true;
+        return false;
+    };
 
     return (
         <div className="rounded-large border border-sams-border bg-sams-surface p-4">
@@ -75,17 +86,21 @@ export const MiniMonthCalendar = ({ selectedDate, onSelect }: MiniMonthCalendarP
                 {days.map((day) => {
                     const isCurrentMonth = day.month() === month.month();
                     const isSelected = day.isSame(dayjs.tz(selectedDate, PARIS_TZ), 'day');
+                    const disabled = isDisabled(day);
                     return (
                         <button
                             key={day.format('YYYY-MM-DD')}
                             type="button"
-                            onClick={() => onSelect(day.toDate())}
+                            onClick={() => !disabled && onSelect(day.toDate())}
+                            disabled={disabled}
                             className={`h-8 rounded-full text-xs transition ${
-                                isSelected
-                                    ? 'bg-sams-accent text-sams-bg'
-                                    : isCurrentMonth
-                                      ? 'text-sams-text hover:bg-sams-surface2'
-                                      : 'text-sams-muted/60'
+                                disabled
+                                    ? 'cursor-not-allowed text-sams-muted/30'
+                                    : isSelected
+                                      ? 'bg-sams-accent text-sams-bg'
+                                      : isCurrentMonth
+                                        ? 'text-sams-text hover:bg-sams-surface2'
+                                        : 'text-sams-muted/60'
                             }`}
                         >
                             {day.date()}

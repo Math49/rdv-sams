@@ -35,6 +35,8 @@ export type Calendar = {
     color?: string | null;
     message?: string | null;
     isActive?: boolean;
+    bookingMinHours?: number | null;
+    bookingMaxDays?: number | null;
 };
 
 export type AppointmentType = {
@@ -138,6 +140,8 @@ export type PatientTokenContext = {
     calendarId?: string | null;
     specialtyId?: string | null;
     expiresAt: string;
+    bookingMinHours?: number | null;
+    bookingMaxDays?: number | null;
 };
 
 export type AvailabilitySlot = {

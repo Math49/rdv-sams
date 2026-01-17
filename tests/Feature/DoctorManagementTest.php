@@ -46,7 +46,7 @@ test('creating a doctor creates doctor scope calendar', function () {
     $calendars = Calendar::query()->where('doctorId', new \MongoDB\BSON\ObjectId($doctorId))->get();
     expect($calendars)->toHaveCount(1);
     expect($calendars->first()->scope)->toBe('doctor');
-    expect($calendars->first()->label)->toBe('Visite Médicale');
+    expect($calendars->first()->label)->toBe('Médical');
 });
 
 test('creating a doctor with specialties creates specialty scope calendars', function () {

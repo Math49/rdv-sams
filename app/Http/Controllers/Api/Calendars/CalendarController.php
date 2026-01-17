@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Calendars;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Calendars\UpdateCalendarBookingWindowRequest;
 use App\Http\Requests\Calendars\UpdateCalendarMessageRequest;
 use App\Models\Calendar;
 use App\Models\User;
@@ -101,7 +102,11 @@ class CalendarController extends Controller
 
             if ($bookingToken->specialtyId) {
                 $specialtyId = (string) $bookingToken->specialtyId;
-                $calendars = $calendars->filter(fn (Calendar $calendar) => (string) $calendar->specialtyId === $specialtyId);
+                // Only filter by specialtyId for specialty scope calendars
+                // Doctor scope calendars don't have a specialtyId
+                $calendars = $calendars->filter(fn (Calendar $calendar) => 
+                    $calendar->scope === 'doctor' || (string) $calendar->specialtyId === $specialtyId
+                );
             }
 
             $calendars = $calendars->values();
@@ -141,6 +146,36 @@ class CalendarController extends Controller
 
         return response()->json([
             'message' => 'Calendar message updated',
+            'data' => $calendar,
+        ]);
+    }
+
+    public function updateBookingWindow(UpdateCalendarBookingWindowRequest $request, string $calendarId): JsonResponse
+    {
+        $calendar = Calendar::query()->where('_id', new ObjectId($calendarId))->first();
+        if (! $calendar) {
+            return response()->json(['message' => 'Calendar not found'], 404);
+        }
+
+        /** @var User $user */
+        $user = $request->user();
+        if (! $this->isAdmin($user)) {
+            if ($calendar->scope === 'sams') {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+
+            if ((string) $calendar->doctorId !== $user->getKey()) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+        }
+
+        $data = $request->validated();
+        $calendar->bookingMinHours = (int) $data['bookingMinHours'];
+        $calendar->bookingMaxDays = (int) $data['bookingMaxDays'];
+        $calendar->save();
+
+        return response()->json([
+            'message' => 'Booking window updated',
             'data' => $calendar,
         ]);
     }

@@ -87,6 +87,8 @@ export const calendarApi = {
     listMine: () => api.get('/api/me/calendars'),
     updateMessage: (calendarId: string, payload: { message: string; color?: string }) =>
         api.patch(`/api/calendars/${calendarId}/message`, payload),
+    updateBookingWindow: (calendarId: string, payload: { bookingMinHours: number; bookingMaxDays: number }) =>
+        api.patch(`/api/calendars/${calendarId}/booking-window`, payload),
     appointmentTypes: (calendarId: string) => api.get(`/api/calendars/${calendarId}/appointment-types`),
     bookingToken: (calendarId: string) => api.post(`/api/calendars/${calendarId}/booking-token`),
 };

@@ -258,8 +258,12 @@ class AvailabilitySlotController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        if ($bookingToken && $bookingToken->specialtyId && (string) $bookingToken->specialtyId !== (string) $calendar->specialtyId) {
-            return response()->json(['message' => 'Forbidden'], 403);
+        // For specialty scope calendars, verify the specialty matches if token has specialtyId restriction
+        // Doctor scope calendars don't have a specialtyId, so skip this check for them
+        if ($bookingToken && $bookingToken->specialtyId && $calendar->scope === 'specialty') {
+            if ((string) $bookingToken->specialtyId !== (string) $calendar->specialtyId) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
         }
 
         if ((string) $calendar->doctorId !== $data['doctorId']) {
@@ -298,6 +302,33 @@ class AvailabilitySlotController extends Controller
         $from = Carbon::parse($data['from']);
         $to = Carbon::parse($data['to']);
 
+        // Apply booking window constraints
+        $now = Carbon::now();
+        $bookingMinHours = $calendar->getBookingMinHours();
+        $bookingMaxDays = $calendar->getBookingMaxDays();
+        $minStart = $now->copy()->addHours($bookingMinHours);
+        $maxStart = $now->copy()->addDays($bookingMaxDays)->endOfDay();
+
+        // Clamp the requested range to the booking window
+        if ($from->lt($minStart)) {
+            $from = Carbon::parse($minStart);
+        }
+        if ($to->gt($maxStart)) {
+            $to = Carbon::parse($maxStart);
+        }
+
+        // If from > to after clamping, return empty slots
+        if ($from->gt($to)) {
+            return response()->json([
+                'message' => 'Availability slots loaded',
+                'data' => [],
+                'bookingWindow' => [
+                    'minStart' => $minStart->toIso8601String(),
+                    'maxStart' => $maxStart->toIso8601String(),
+                ],
+            ]);
+        }
+
         $slots = $this->availabilityService->getSlots(
             $data['doctorId'],
             $data['calendarId'],
@@ -306,9 +337,19 @@ class AvailabilitySlotController extends Controller
             $appointmentType
         );
 
+        // Filter slots outside booking window (safety net)
+        $slots = array_values(array_filter($slots, function (array $slot) use ($minStart, $maxStart) {
+            $slotStart = Carbon::parse($slot['startAt']);
+            return $slotStart->gte($minStart) && $slotStart->lte($maxStart);
+        }));
+
         return response()->json([
             'message' => 'Availability slots loaded',
             'data' => $slots,
+            'bookingWindow' => [
+                'minStart' => $minStart->toIso8601String(),
+                'maxStart' => $maxStart->toIso8601String(),
+            ],
         ]);
     }
 

@@ -468,7 +468,7 @@ const CalendarsIndex = () => {
     const calendarLabel = selectedCalendar
         ? selectedCalendar.label ||
           (selectedCalendar.scope === 'doctor'
-              ? 'Visite medicale'
+              ? 'Médical'
               : selectedCalendar.scope === 'specialty'
                 ? 'Specialite'
                 : 'SAMS')

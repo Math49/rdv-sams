@@ -333,8 +333,12 @@ class AppointmentController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        if ($bookingToken->specialtyId && (string) $bookingToken->specialtyId !== (string) $calendar->specialtyId) {
-            return response()->json(['message' => 'Forbidden'], 403);
+        // For specialty scope calendars, verify the specialty matches if token has specialtyId restriction
+        // Doctor scope calendars don't have a specialtyId, so skip this check for them
+        if ($bookingToken->specialtyId && $calendar->scope === 'specialty') {
+            if ((string) $bookingToken->specialtyId !== (string) $calendar->specialtyId) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
         }
 
         $appointmentType = AppointmentType::query()->where('_id', new ObjectId($data['appointmentTypeId']))->first();
@@ -365,6 +369,30 @@ class AppointmentController extends Controller
 
         $startAt = Carbon::parse($data['startAt']);
         $endAt = $startAt->copy()->addMinutes($this->slotLengthMinutes($appointmentType));
+
+        // Validate booking window
+        $now = now();
+        $bookingMinHours = $calendar->getBookingMinHours();
+        $bookingMaxDays = $calendar->getBookingMaxDays();
+        $minStart = $now->copy()->addHours($bookingMinHours);
+        $maxStart = $now->copy()->addDays($bookingMaxDays)->endOfDay();
+        $timezone = config('app.timezone', 'Europe/Paris');
+
+        if ($startAt->lt($minStart)) {
+            $minFormatted = $minStart->copy()->setTimezone($timezone)->format('d/m/Y H:i');
+            return response()->json([
+                'message' => 'Créneau hors fenêtre de réservation',
+                'errors' => ['startAt' => ["Vous ne pouvez réserver qu'à partir du {$minFormatted}."]],
+            ], 422);
+        }
+
+        if ($startAt->gt($maxStart)) {
+            $maxFormatted = $maxStart->copy()->setTimezone($timezone)->format('d/m/Y H:i');
+            return response()->json([
+                'message' => 'Créneau hors fenêtre de réservation',
+                'errors' => ['startAt' => ["Vous ne pouvez réserver que jusqu'au {$maxFormatted}."]],
+            ], 422);
+        }
 
         if (! $this->availabilityService->isSlotAvailable(
             (string) $bookingToken->doctorId,

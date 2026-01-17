@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\BookingToken;
+use App\Models\Calendar;
 use Illuminate\Http\Request;
 use MongoDB\BSON\ObjectId;
 
@@ -51,19 +52,30 @@ class PatientTokenService
     }
 
     /**
-     * @return array<string, string|null>
+     * @return array<string, string|int|null>
      */
     public function buildContext(BookingToken $bookingToken): array
     {
         $expiresAt = $bookingToken->expiresAt->copy();
 
-        return [
+        $context = [
             'doctorId' => (string) $bookingToken->doctorId,
             'calendarScope' => $bookingToken->calendarScope,
             'calendarId' => $bookingToken->calendarId ? (string) $bookingToken->calendarId : null,
             'specialtyId' => $bookingToken->specialtyId ? (string) $bookingToken->specialtyId : null,
             'expiresAt' => $expiresAt->toIso8601String(),
         ];
+
+        // Include booking window if a specific calendar is set
+        if ($bookingToken->calendarId) {
+            $calendar = Calendar::query()->where('_id', new ObjectId((string) $bookingToken->calendarId))->first();
+            if ($calendar) {
+                $context['bookingMinHours'] = $calendar->getBookingMinHours();
+                $context['bookingMaxDays'] = $calendar->getBookingMaxDays();
+            }
+        }
+
+        return $context;
     }
 
     private function resolveTokenFromValue(string $value): ?BookingToken

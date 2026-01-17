@@ -17,8 +17,11 @@ const CalendarShow = ({ calendarId }: CalendarShowProps) => {
     const [calendar, setCalendar] = useState<Calendar | null>(null);
     const [message, setMessage] = useState('');
     const [color, setColor] = useState('#3B82F6');
+    const [bookingMinHours, setBookingMinHours] = useState(0);
+    const [bookingMaxDays, setBookingMaxDays] = useState(365);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [savingWindow, setSavingWindow] = useState(false);
     const { success } = useToast();
 
     useEffect(() => {
@@ -32,6 +35,8 @@ const CalendarShow = ({ calendarId }: CalendarShowProps) => {
                 setCalendar(found || null);
                 setMessage(found?.message || '');
                 setColor(found?.color || '#3B82F6');
+                setBookingMinHours(found?.bookingMinHours ?? 0);
+                setBookingMaxDays(found?.bookingMaxDays ?? 365);
             } finally {
                 setLoading(false);
             }
@@ -49,6 +54,22 @@ const CalendarShow = ({ calendarId }: CalendarShowProps) => {
             success('Configuration mise à jour');
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleSaveBookingWindow = async (event: FormEvent) => {
+        event.preventDefault();
+        if (!calendar) return;
+        setSavingWindow(true);
+        try {
+            const response = await calendarApi.updateBookingWindow(calendarId, {
+                bookingMinHours,
+                bookingMaxDays,
+            });
+            setCalendar((response.data as ApiResponse<Calendar>).data);
+            success('Fenêtre de réservation mise à jour');
+        } finally {
+            setSavingWindow(false);
         }
     };
 
@@ -124,6 +145,52 @@ const CalendarShow = ({ calendarId }: CalendarShowProps) => {
                             <p className="text-sm text-sams-muted">
                                 Configurez la durée et les buffers avant/après pour les rendez-vous.
                             </p>
+                        </SectionCard>
+
+                        <SectionCard
+                            title="Fenêtre de réservation"
+                            description="Définissez les limites de réservation pour les patients."
+                        >
+                            <form onSubmit={handleSaveBookingWindow} className="space-y-4">
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <Input
+                                        type="number"
+                                        label="Délai minimum (heures)"
+                                        description="Nombre d'heures minimum avant un RDV. Ex: 4 = pas de RDV dans les 4 prochaines heures."
+                                        value={String(bookingMinHours)}
+                                        onValueChange={(v) => setBookingMinHours(Math.max(0, parseInt(v) || 0))}
+                                        min={0}
+                                        max={720}
+                                    />
+                                    <Input
+                                        type="number"
+                                        label="Délai maximum (jours)"
+                                        description="Nombre de jours maximum à l'avance. Ex: 30 = pas de RDV au-delà de 30 jours."
+                                        value={String(bookingMaxDays)}
+                                        onValueChange={(v) => setBookingMaxDays(Math.max(1, parseInt(v) || 1))}
+                                        min={1}
+                                        max={730}
+                                    />
+                                </div>
+                                <div className="rounded-medium bg-sams-bg/50 p-3 text-sm text-sams-muted">
+                                    <p>
+                                        <strong>Aperçu :</strong> Les patients pourront réserver entre{' '}
+                                        <span className="text-sams-text">
+                                            {bookingMinHours === 0
+                                                ? 'maintenant'
+                                                : `dans ${bookingMinHours} heure${bookingMinHours > 1 ? 's' : ''}`}
+                                        </span>{' '}
+                                        et{' '}
+                                        <span className="text-sams-text">
+                                            {bookingMaxDays} jour{bookingMaxDays > 1 ? 's' : ''} à l'avance
+                                        </span>
+                                        .
+                                    </p>
+                                </div>
+                                <Button color="primary" type="submit" isLoading={savingWindow}>
+                                    Enregistrer la fenêtre
+                                </Button>
+                            </form>
                         </SectionCard>
 
                         <SectionCard

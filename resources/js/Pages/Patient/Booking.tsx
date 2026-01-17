@@ -18,13 +18,14 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import type { DatesSetArg, EventClickArg, EventInput } from '@fullcalendar/core';
+import dayjs from 'dayjs';
 
 import { PatientLayout } from '@/Layouts/PatientLayout';
 import { PatientForm } from '@/Components/patient/PatientForm';
 import { api, patientApi } from '@/lib/api';
-import { formatDateTimeFR, toIsoParis } from '@/lib/date';
+import { formatDateTimeFR, PARIS_TZ, toIsoParis } from '@/lib/date';
 import { clearPatientContext } from '@/lib/patient';
-import type { ApiResponse, AppointmentType, AvailabilitySlot, PatientInfo, PatientTokenContext } from '@/lib/types';
+import type { ApiResponse, AppointmentType, AvailabilitySlot, Calendar, PatientInfo, PatientTokenContext } from '@/lib/types';
 import { useToast } from '@/hooks/useToast';
 
 type BookingProps = {
@@ -46,6 +47,7 @@ type CalendarView = (typeof viewOptions)[number]['key'];
 const Booking = ({ calendarId }: BookingProps) => {
     const [context, setContext] = useState<PatientTokenContext | null>(null);
     const [loadingContext, setLoadingContext] = useState(true);
+    const [calendar, setCalendar] = useState<Calendar | null>(null);
     const doctorId = context?.doctorId || '';
     const { success, error } = useToast();
     const calendarRef = useRef<FullCalendar | null>(null);
@@ -82,6 +84,46 @@ const Booking = ({ calendarId }: BookingProps) => {
 
         loadContext();
     }, []);
+
+    // Load calendar info
+    useEffect(() => {
+        const loadCalendar = async () => {
+            if (!doctorId) return;
+            try {
+                const response = await patientApi.getCalendars(doctorId);
+                const calendars = (response.data as ApiResponse<Calendar[]>).data;
+                const found = calendars.find((c) => (c._id || c.id) === calendarId);
+                setCalendar(found || null);
+            } catch {
+                setCalendar(null);
+            }
+        };
+        loadCalendar();
+    }, [doctorId, calendarId]);
+
+    // Calculate booking window
+    const bookingWindow = useMemo(() => {
+        const bookingMinHours = calendar?.bookingMinHours ?? context?.bookingMinHours ?? 0;
+        const bookingMaxDays = calendar?.bookingMaxDays ?? context?.bookingMaxDays ?? 365;
+        const now = dayjs.tz(new Date(), PARIS_TZ);
+        const minStart = now.add(bookingMinHours, 'hour');
+        const maxStart = now.add(bookingMaxDays, 'day').endOf('day');
+        return {
+            minStart: minStart.toDate(),
+            maxStart: maxStart.toDate(),
+            bookingMinHours,
+            bookingMaxDays,
+        };
+    }, [calendar, context]);
+
+    // Booking window message
+    const bookingWindowMessage = useMemo(() => {
+        const { minStart, maxStart, bookingMinHours, bookingMaxDays } = bookingWindow;
+        if (bookingMinHours === 0 && bookingMaxDays >= 365) return null;
+        const minFormatted = formatDateTimeFR(minStart);
+        const maxFormatted = formatDateTimeFR(maxStart);
+        return `Réservation possible du ${minFormatted} au ${maxFormatted}.`;
+    }, [bookingWindow]);
 
     useEffect(() => {
         const loadTypes = async () => {
@@ -233,6 +275,13 @@ const Booking = ({ calendarId }: BookingProps) => {
         <PatientLayout>
             <Head title="Prise de RDV" />
             <div className="space-y-6">
+                {bookingWindowMessage ? (
+                    <Card className="border border-sams-accent/30 bg-sams-accent/10">
+                        <CardBody>
+                            <p className="text-sm text-sams-accent">{bookingWindowMessage}</p>
+                        </CardBody>
+                    </Card>
+                ) : null}
                 <Card className="border border-sams-border bg-sams-surface/70">
                     <CardBody className="space-y-4">
                         <h2 className="text-xl font-semibold">Prendre un rendez-vous</h2>
