@@ -124,7 +124,7 @@ const AppointmentHome = () => {
                         <div className="grid gap-4 md:grid-cols-2">
                             {vmCalendar ? (
                                 <AppointmentTypeCard
-                                    title="Visite médicale"
+                                    title="Médical"
                                     description={vmCalendar.label || 'Calendrier médecin'}
                                     actionLabel="Choisir"
                                     onSelect={() => handleSelect(vmCalendar._id || vmCalendar.id || '')}

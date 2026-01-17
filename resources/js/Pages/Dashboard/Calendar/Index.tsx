@@ -426,7 +426,7 @@ const CalendarIndex = () => {
     const calendarLabel = selectedCalendar
         ? selectedCalendar.label ||
           (selectedCalendar.scope === 'doctor'
-              ? 'Visite médicale'
+              ? 'Médical'
               : selectedCalendar.scope === 'specialty'
                 ? 'Spécialité'
                 : 'SAMS')
@@ -499,7 +499,7 @@ const CalendarIndex = () => {
                                     return (
                                         <SelectItem key={id}>
                                             {calendar.label ||
-                                                (calendar.scope === 'doctor' ? 'Visite medicale' : 'Specialite')}
+                                                (calendar.scope === 'doctor' ? 'Médical' : 'Spécialité')}
                                         </SelectItem>
                                     );
                                 })}
