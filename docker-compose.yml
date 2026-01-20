@@ -3,5 +3,5 @@ services:
     container_name: rdv-sams
     image: ghcr.io/math49/rdv-sams:latest
     ports:
-      - "127.0.0.1:40200:40200"
+      - "127.0.0.1:8500:8000"
     restart: unless-stopped
